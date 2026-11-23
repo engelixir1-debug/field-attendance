@@ -1,0 +1,1061 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>تسجيل الدخول والمتابعة الميدانية</title>
+  <style>
+    * { box-sizing: border-box; font-family: system-ui, -apple-system, "Segoe UI", Tahoma, sans-serif; }
+    body {
+      margin: 0;
+      background: #f1f5f9;
+      color: #0f172a;
+      padding: 18px;
+    }
+    .container {
+      max-width: 640px;
+      margin: 0 auto;
+      background: #ffffff;
+      border-radius: 14px;
+      padding: 22px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+    }
+    h1 { margin: 0 0 6px; font-size: 1.3rem; }
+    .subtitle { margin: 0 0 18px; font-size: 0.9rem; color: #64748b; }
+    .field { margin-bottom: 14px; }
+    .label { display: block; font-weight: 700; margin-bottom: 7px; font-size: 0.92rem; }
+    .input, .select, .textarea, .file-input {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #cbd5e1;
+      border-radius: 9px;
+      font-size: 0.95rem;
+      background: #fff;
+    }
+    .textarea {
+      min-height: 82px;
+      resize: vertical;
+      margin-bottom: 16px;
+    }
+    .file-input { border-style: dashed; background: #f8fafc; }
+    .btn {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 10px;
+      background: #2563eb;
+      color: #fff;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn:hover { background: #1d4ed8; }
+    .btn:disabled { background: #94a3b8; cursor: not-allowed; }
+    .btn-secondary {
+      background: #e2e8f0;
+      color: #1e293b;
+      padding: 7px 12px;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .btn-small {
+      background: #eff6ff;
+      color: #1d4ed8;
+      border: 1px solid #bfdbfe;
+      padding: 6px 10px;
+      border-radius: 8px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      padding: 10px 14px;
+      border-radius: 10px;
+      margin-bottom: 16px;
+      font-size: 0.9rem;
+    }
+    .info-box {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 12px 14px;
+      margin-bottom: 16px;
+      font-size: 0.88rem;
+      line-height: 1.7;
+    }
+    .loc-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 4px;
+    }
+    .badge-ok { color: #15803d; font-weight: 700; }
+    .badge-warn { color: #b91c1c; font-weight: 700; }
+    .radio-group {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .radio-card {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      padding: 10px 12px;
+      background: #f8fafc;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 0.92rem;
+    }
+    .radio-card input { width: 18px; height: 18px; accent-color: #2563eb; }
+    .project-box {
+      border: 1px solid #cbd5e1;
+      background: #f8fafc;
+      border-radius: 10px;
+      padding: 12px 14px;
+      margin-bottom: 16px;
+    }
+    .license-area {
+      margin-top: 12px;
+      display: none;
+    }
+    .license-details {
+      margin-top: 8px;
+      padding: 9px 12px;
+      border-radius: 8px;
+      font-size: 0.86rem;
+      display: none;
+    }
+    .license-found {
+      display: block;
+      background: #ecfdf5;
+      border: 1px solid #6ee7b7;
+      color: #065f46;
+      font-weight: 700;
+    }
+    .license-none {
+      display: block;
+      background: #fffbeb;
+      border: 1px solid #fcd34d;
+      color: #92400e;
+      font-weight: 600;
+    }
+    .filter-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .role-group {
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 12px;
+      margin-bottom: 12px;
+      background: #fafbfc;
+    }
+    .role-title {
+      font-weight: 700;
+      color: #1e40af;
+      margin-bottom: 10px;
+      font-size: 0.95rem;
+      border-bottom: 1px solid #e2e8f0;
+      padding-bottom: 6px;
+    }
+    .names-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+    .name-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #fff;
+      border: 1px solid #cbd5e1;
+      padding: 8px 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.88rem;
+    }
+    .name-item input { width: 17px; height: 17px; accent-color: #2563eb; flex-shrink: 0; }
+    .staff-meta { display: flex; flex-direction: column; line-height: 1.3; }
+    .staff-id { font-size: 0.78rem; color: #64748b; }
+
+    .selected-box {
+      border: 1px solid #93c5fd;
+      background: #eff6ff;
+      border-radius: 10px;
+      padding: 12px;
+      margin: 14px 0 18px;
+    }
+    .selected-box-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: 700;
+      color: #1e3a8a;
+      margin-bottom: 8px;
+      font-size: 0.92rem;
+    }
+    .chips-wrap {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #ffffff;
+      border: 1px solid #bfdbfe;
+      color: #0f172a;
+      padding: 5px 10px;
+      border-radius: 999px;
+      font-size: 0.82rem;
+    }
+    .chip-remove {
+      border: none;
+      background: #fee2e2;
+      color: #991b1b;
+      border-radius: 50%;
+      width: 18px;
+      height: 18px;
+      line-height: 16px;
+      text-align: center;
+      cursor: pointer;
+      font-weight: 700;
+      padding: 0;
+    }
+    .empty-selected { color: #64748b; font-size: 0.85rem; margin: 0; }
+
+    .camera-box {
+      border: 1px solid #e2e8f0;
+      background: #f8fafc;
+      border-radius: 10px;
+      padding: 12px;
+      margin-bottom: 16px;
+    }
+    .camera-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+    video#cameraStream {
+      display: none;
+      width: 100%;
+      max-height: 260px;
+      border-radius: 10px;
+      background: #000;
+      margin-bottom: 10px;
+    }
+    .preview-img {
+      display: none;
+      width: 100%;
+      max-height: 240px;
+      object-fit: cover;
+      border-radius: 10px;
+      margin-top: 8px;
+      border: 1px solid #cbd5e1;
+    }
+    .status {
+      margin-top: 14px;
+      padding: 12px;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      display: none;
+    }
+    .status.success { display: block; background: #dcfce7; color: #166534; border: 1px solid #86efac; }
+    .status.error { display: block; background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+    .status.loading { display: block; background: #e0f2fe; color: #075985; border: 1px solid #7dd3fc; }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div id="loginSection">
+      <h1>تسجيل الدخول</h1>
+      <p class="subtitle">أدخل اسم المستخدم وكلمة السر المعرفة في ورقة Users.</p>
+
+      <form id="loginForm">
+        <div class="field">
+          <label class="label" for="usernameInput">اسم المستخدم</label>
+          <input class="input" type="text" id="usernameInput" required autocomplete="username" />
+        </div>
+
+        <div class="field">
+          <label class="label" for="passwordInput">كلمة السر</label>
+          <input class="input" type="password" id="passwordInput" required autocomplete="current-password" />
+        </div>
+
+        <button type="submit" class="btn" id="loginBtn">دخول</button>
+      </form>
+    </div>
+
+    <div id="appSection" class="hidden">
+      <div class="topbar">
+        <div>مرحباً، <strong id="currentUserLabel"></strong></div>
+        <button type="button" class="btn-secondary" id="logoutBtn">تسجيل خروج</button>
+      </div>
+
+      <h1>تسجيل الموجودين والموقع</h1>
+      <p class="subtitle">يتم حفظ سجل مستقل لكل موظف مع التاريخ والوقت والمشروع والرخصة والملاحظات.</p>
+
+      <div class="info-box">
+        <div><strong>التاريخ:</strong> <span id="liveDate">...</span> | <strong>الوقت:</strong> <span id="liveTime">...</span></div>
+        <div class="loc-row">
+          <div><strong>إحداثيات الموقع:</strong> <span id="locationStatus" class="badge-warn">جاري التحقق من الموقع...</span></div>
+          <button type="button" class="btn-small" id="refreshLocBtn">تحديث / التحقق من الموقع</button>
+        </div>
+      </div>
+
+      <form id="reportForm">
+        <span class="label">مكان تواجد المجموعة:</span>
+        <div class="radio-group">
+          <label class="radio-card">
+            <input type="radio" name="locationType" value="موقع العمل" required />
+            <span>موقع العمل</span>
+          </label>
+          <label class="radio-card">
+            <input type="radio" name="locationType" value="السكن" required />
+            <span>السكن</span>
+          </label>
+        </div>
+
+        <div class="project-box hidden" id="projectSection">
+          <label class="label" for="projectSelect">اختر المشروع (ProjectCode):</label>
+          <select class="select" id="projectSelect">
+            <option value="">-- اختر المشروع --</option>
+          </select>
+
+          <div class="license-area" id="licenseArea">
+            <label class="label" for="licenseSelect">الرخصة التابعة للمشروع (LicenseCode):</label>
+            <select class="select" id="licenseSelect">
+              <option value="">-- اختر الرخصة --</option>
+            </select>
+          </div>
+
+          <div class="license-details" id="licenseDetails"></div>
+        </div>
+
+        <div class="filter-row">
+          <div>
+            <label class="label" for="roleFilter">تصفية حسب المهنة</label>
+            <select class="select" id="roleFilter">
+              <option value="ALL">جميع المهن</option>
+            </select>
+          </div>
+          <div>
+            <label class="label" for="searchInput">بحث بالاسم أو ID_Number</label>
+            <input class="input" type="text" id="searchInput" placeholder="اكتب الاسم أو الرقم..." />
+          </div>
+        </div>
+
+        <span class="label">الموظفون (مقسمون حسب المهن):</span>
+        <div id="staffContainer"></div>
+
+        <div class="selected-box" id="selectedSummaryBox">
+          <div class="selected-box-header">
+            <span>المجموعة المحددة قبل الاعتماد (<span id="selectedCount">0</span>)</span>
+            <button type="button" class="btn-small" id="clearSelectedBtn">مسح الكل</button>
+          </div>
+          <div class="chips-wrap" id="selectedChips">
+            <p class="empty-selected">لم يتم اختيار أي موظف بعد.</p>
+          </div>
+        </div>
+
+        <label class="label" for="notesInput">ملاحظات (اختياري):</label>
+        <textarea
+          class="textarea"
+          id="notesInput"
+          placeholder="اكتب أي ملاحظات إضافية عن الموقع أو المجموعة أو حالة العمل..."
+        ></textarea>
+
+        <div class="camera-box">
+          <span class="label">الصورة (التقاط مباشر بالكاميرا أو إرفاق ملف):</span>
+          <div class="camera-actions">
+            <button type="button" class="btn-small" id="openCameraBtn">فتح الكاميرا المباشرة</button>
+            <button type="button" class="btn-small" id="capturePhotoBtn" disabled>التقاط صورة الآن</button>
+            <button type="button" class="btn-small" id="switchCameraBtn" disabled>تبديل الكاميرا</button>
+            <button type="button" class="btn-secondary" id="stopCameraBtn" disabled>إيقاف الكاميرا</button>
+          </div>
+
+          <video id="cameraStream" autoplay playsinline muted></video>
+          <canvas id="captureCanvas" class="hidden"></canvas>
+
+          <input class="file-input" type="file" id="photoInput" accept="image/*" capture="environment" />
+          <img id="previewImg" class="preview-img" alt="معاينة الصورة" />
+        </div>
+
+        <button type="submit" class="btn" id="submitBtn">اعتماد وإرسال البيانات</button>
+      </form>
+    </div>
+
+    <div id="statusBox" class="status"></div>
+  </div>
+
+  <script>
+    // ضع هنا رابط Web App الخاص بـ Google Apps Script (ينتهي بـ /exec)
+    const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyTFRiFSH-SEoMrMvuQurYGu41IH9Ml7QEMgTvluINHFkCLu5V-Rhd6XJBkVrrTGWcsZg/exec';
+
+    let sessionAuth = { username: '', password: '', fullName: '' };
+    let staffByRoleData = {};
+    let projectsListData = [];
+    let selectedMap = new Map();
+    let currentCoords = { latitude: null, longitude: null, accuracy: null, verified: false };
+    let capturedBase64Image = null;
+    let clockTimer = null;
+    let cameraStreamObj = null;
+    let facingMode = 'environment';
+
+    const loginSection = document.getElementById('loginSection');
+    const appSection = document.getElementById('appSection');
+    const loginForm = document.getElementById('loginForm');
+    const loginBtn = document.getElementById('loginBtn');
+    const logoutBtn = document.getElementById('logoutBtn');
+    const currentUserLabel = document.getElementById('currentUserLabel');
+
+    const liveDateEl = document.getElementById('liveDate');
+    const liveTimeEl = document.getElementById('liveTime');
+    const locationStatusEl = document.getElementById('locationStatus');
+    const refreshLocBtn = document.getElementById('refreshLocBtn');
+
+    const locationRadios = document.querySelectorAll('input[name="locationType"]');
+    const projectSection = document.getElementById('projectSection');
+    const projectSelect = document.getElementById('projectSelect');
+    const licenseArea = document.getElementById('licenseArea');
+    const licenseSelect = document.getElementById('licenseSelect');
+    const licenseDetails = document.getElementById('licenseDetails');
+
+    const roleFilter = document.getElementById('roleFilter');
+    const searchInput = document.getElementById('searchInput');
+    const staffContainer = document.getElementById('staffContainer');
+    const selectedCountEl = document.getElementById('selectedCount');
+    const selectedChipsEl = document.getElementById('selectedChips');
+    const clearSelectedBtn = document.getElementById('clearSelectedBtn');
+    const notesInput = document.getElementById('notesInput');
+
+    const openCameraBtn = document.getElementById('openCameraBtn');
+    const capturePhotoBtn = document.getElementById('capturePhotoBtn');
+    const switchCameraBtn = document.getElementById('switchCameraBtn');
+    const stopCameraBtn = document.getElementById('stopCameraBtn');
+    const videoEl = document.getElementById('cameraStream');
+    const canvasEl = document.getElementById('captureCanvas');
+    const photoInput = document.getElementById('photoInput');
+    const previewImg = document.getElementById('previewImg');
+
+    const reportForm = document.getElementById('reportForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const statusBox = document.getElementById('statusBox');
+
+    function showStatus(type, message) {
+      statusBox.className = `status ${type}`;
+      statusBox.textContent = message;
+    }
+
+    function hideStatus() {
+      statusBox.className = 'status';
+      statusBox.textContent = '';
+    }
+
+    function updateClock() {
+      const now = new Date();
+      liveDateEl.textContent = now.toLocaleDateString('ar-SA', {
+        year: 'numeric', month: '2-digit', day: '2-digit'
+      });
+      liveTimeEl.textContent = now.toLocaleTimeString('ar-SA', {
+        hour: '2-digit', minute: '2-digit', second: '2-digit'
+      });
+    }
+
+    function verifyLocation() {
+      return new Promise((resolve) => {
+        if (!navigator.geolocation) {
+          currentCoords = { latitude: null, longitude: null, accuracy: null, verified: false };
+          locationStatusEl.className = 'badge-warn';
+          locationStatusEl.textContent = 'المتصفح لا يدعم تحديد الموقع.';
+          resolve(false);
+          return;
+        }
+
+        locationStatusEl.className = 'badge-warn';
+        locationStatusEl.textContent = 'جاري التحقق من إحداثيات الموقع...';
+
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {
+            currentCoords = {
+              latitude: pos.coords.latitude,
+              longitude: pos.coords.longitude,
+              accuracy: Math.round(pos.coords.accuracy),
+              verified: true
+            };
+            locationStatusEl.className = 'badge-ok';
+            locationStatusEl.textContent =
+              `تم التحقق (${currentCoords.latitude.toFixed(6)}, ${currentCoords.longitude.toFixed(6)}) ±${currentCoords.accuracy}م`;
+            resolve(true);
+          },
+          () => {
+            currentCoords = { latitude: null, longitude: null, accuracy: null, verified: false };
+            locationStatusEl.className = 'badge-warn';
+            locationStatusEl.textContent = 'لم يتم التحقق من الموقع (فعّل GPS وامنح الإذن ثم أعد المحاولة).';
+            resolve(false);
+          },
+          { enableHighAccuracy: true, timeout: 12000, maximumAge: 0 }
+        );
+      });
+    }
+
+    refreshLocBtn.addEventListener('click', () => {
+      verifyLocation();
+    });
+
+    function populateProjectsSelect(projects) {
+      projectSelect.innerHTML = '<option value="">-- اختر المشروع --</option>';
+      (projects || []).forEach((proj) => {
+        const opt = document.createElement('option');
+        opt.value = proj.projectCode;
+        opt.textContent = proj.schemeNumber
+          ? `${proj.projectCode} (Scheme: ${proj.schemeNumber})`
+          : proj.projectCode;
+        projectSelect.appendChild(opt);
+      });
+      handleProjectChange();
+    }
+
+    function handleProjectChange() {
+      const selectedProjCode = projectSelect.value;
+      licenseSelect.innerHTML = '<option value="">-- اختر الرخصة --</option>';
+      licenseDetails.className = 'license-details';
+      licenseDetails.textContent = '';
+
+      if (!selectedProjCode) {
+        licenseArea.style.display = 'none';
+        licenseSelect.required = false;
+        return;
+      }
+
+      const proj = projectsListData.find((p) => p.projectCode === selectedProjCode);
+      const licenses = (proj && Array.isArray(proj.licenses)) ? proj.licenses : [];
+
+      if (licenses.length > 0) {
+        licenseArea.style.display = 'block';
+        licenseSelect.required = true;
+
+        licenses.forEach((lic) => {
+          const opt = document.createElement('option');
+          opt.value = lic.licenseCode;
+          opt.textContent = lic.licenseNumber
+            ? `${lic.licenseCode} — رقم الرخصة: ${lic.licenseNumber}`
+            : lic.licenseCode;
+          licenseSelect.appendChild(opt);
+        });
+
+        if (licenses.length === 1) {
+          licenseSelect.value = licenses[0].licenseCode;
+        }
+        updateLicenseDetails();
+      } else {
+        licenseArea.style.display = 'none';
+        licenseSelect.required = false;
+        licenseDetails.className = 'license-details license-none';
+        licenseDetails.textContent = 'لا توجد رخصة فعّالة مسجلة لهذا المشروع.';
+      }
+    }
+
+    function updateLicenseDetails() {
+      const selectedProjCode = projectSelect.value;
+      const selectedLicCode = licenseSelect.value;
+      if (!selectedProjCode || !selectedLicCode) {
+        licenseDetails.className = 'license-details';
+        licenseDetails.textContent = '';
+        return;
+      }
+
+      const proj = projectsListData.find((p) => p.projectCode === selectedProjCode);
+      const lic = proj && proj.licenses ? proj.licenses.find((l) => l.licenseCode === selectedLicCode) : null;
+
+      if (lic) {
+        licenseDetails.className = 'license-details license-found';
+        licenseDetails.textContent = lic.licenseNumber
+          ? `الرخصة المحددة: ${lic.licenseCode} | رقم الرخصة (LicenseNumber): ${lic.licenseNumber}`
+          : `الرخصة المحددة: ${lic.licenseCode}`;
+      }
+    }
+
+    function handleLocationTypeChange() {
+      const checkedRadio = document.querySelector('input[name="locationType"]:checked');
+      const val = checkedRadio ? checkedRadio.value : '';
+      if (val === 'موقع العمل') {
+        projectSection.classList.remove('hidden');
+        projectSelect.required = true;
+        handleProjectChange();
+      } else {
+        projectSection.classList.add('hidden');
+        projectSelect.required = false;
+        projectSelect.value = '';
+        licenseSelect.required = false;
+        licenseSelect.value = '';
+        licenseArea.style.display = 'none';
+        licenseDetails.className = 'license-details';
+        licenseDetails.textContent = '';
+      }
+    }
+
+    locationRadios.forEach((radio) => {
+      radio.addEventListener('change', handleLocationTypeChange);
+    });
+
+    projectSelect.addEventListener('change', handleProjectChange);
+    licenseSelect.addEventListener('change', updateLicenseDetails);
+
+    function populateRoleFilter(grouped) {
+      roleFilter.innerHTML = '<option value="ALL">جميع المهن</option>';
+      Object.keys(grouped).forEach((role) => {
+        const opt = document.createElement('option');
+        opt.value = role;
+        opt.textContent = role;
+        roleFilter.appendChild(opt);
+      });
+    }
+
+    function renderSelectedSummary() {
+      const items = Array.from(selectedMap.values());
+      selectedCountEl.textContent = String(items.length);
+
+      if (items.length === 0) {
+        selectedChipsEl.innerHTML = '<p class="empty-selected">لم يتم اختيار أي موظف بعد.</p>';
+        return;
+      }
+
+      selectedChipsEl.innerHTML = '';
+      items.forEach((item) => {
+        const key = `${item.role}|||${item.idNumber}|||${item.name}`;
+        const chip = document.createElement('span');
+        chip.className = 'chip';
+
+        const textSpan = document.createElement('span');
+        const idText = item.idNumber ? ` [${item.idNumber}]` : '';
+        textSpan.textContent = `${item.name}${idText} — ${item.role}`;
+
+        const removeBtn = document.createElement('button');
+        removeBtn.type = 'button';
+        removeBtn.className = 'chip-remove';
+        removeBtn.title = 'إزالة';
+        removeBtn.textContent = '×';
+        removeBtn.addEventListener('click', () => {
+          selectedMap.delete(key);
+          const cb = staffContainer.querySelector(`input[data-key="${CSS.escape(key)}"]`);
+          if (cb) cb.checked = false;
+          renderSelectedSummary();
+        });
+
+        chip.appendChild(textSpan);
+        chip.appendChild(removeBtn);
+        selectedChipsEl.appendChild(chip);
+      });
+    }
+
+    clearSelectedBtn.addEventListener('click', () => {
+      selectedMap.clear();
+      staffContainer.querySelectorAll('input[name="staffItem"]').forEach((cb) => {
+        cb.checked = false;
+      });
+      renderSelectedSummary();
+    });
+
+    function renderStaffGroups() {
+      const chosenRole = roleFilter.value;
+      const keyword = searchInput.value.trim().toLowerCase();
+
+      staffContainer.innerHTML = '';
+      const roles = Object.keys(staffByRoleData);
+
+      if (roles.length === 0) {
+        staffContainer.innerHTML = '<p>لا يوجد موظفون مفعلون في ورقة Staff.</p>';
+        return;
+      }
+
+      let hasAnyMatch = false;
+
+      roles.forEach((role) => {
+        if (chosenRole !== 'ALL' && chosenRole !== role) return;
+
+        const matchingPeople = (staffByRoleData[role] || []).filter((person) =>
+          person.name.toLowerCase().includes(keyword) ||
+          person.idNumber.toLowerCase().includes(keyword)
+        );
+        if (matchingPeople.length === 0) return;
+
+        hasAnyMatch = true;
+        const groupDiv = document.createElement('div');
+        groupDiv.className = 'role-group';
+
+        const titleDiv = document.createElement('div');
+        titleDiv.className = 'role-title';
+        titleDiv.textContent = `المهنة: ${role}`;
+        groupDiv.appendChild(titleDiv);
+
+        const gridDiv = document.createElement('div');
+        gridDiv.className = 'names-grid';
+
+        matchingPeople.forEach((person) => {
+          const key = `${role}|||${person.idNumber}|||${person.name}`;
+          const isChecked = selectedMap.has(key);
+
+          const label = document.createElement('label');
+          label.className = 'name-item';
+
+          const cb = document.createElement('input');
+          cb.type = 'checkbox';
+          cb.name = 'staffItem';
+          cb.dataset.key = key;
+          cb.checked = isChecked;
+          cb.addEventListener('change', () => {
+            if (cb.checked) {
+              selectedMap.set(key, { idNumber: person.idNumber, name: person.name, role: role });
+            } else {
+              selectedMap.delete(key);
+            }
+            renderSelectedSummary();
+          });
+
+          const metaSpan = document.createElement('span');
+          metaSpan.className = 'staff-meta';
+          const nameSpan = document.createElement('span');
+          nameSpan.textContent = person.name;
+          metaSpan.appendChild(nameSpan);
+
+          if (person.idNumber) {
+            const idSpan = document.createElement('span');
+            idSpan.className = 'staff-id';
+            idSpan.textContent = `ID: ${person.idNumber}`;
+            metaSpan.appendChild(idSpan);
+          }
+
+          label.appendChild(cb);
+          label.appendChild(metaSpan);
+          gridDiv.appendChild(label);
+        });
+
+        groupDiv.appendChild(gridDiv);
+        staffContainer.appendChild(groupDiv);
+      });
+
+      if (!hasAnyMatch) {
+        staffContainer.innerHTML = '<p>لا توجد نتائج مطابقة للتصفية أو البحث.</p>';
+      }
+    }
+
+    async function startLiveCamera() {
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        showStatus('error', 'الكاميرا المباشرة غير مدعومة في هذا المتصفح؛ يمكنك استخدام زر اختيار الصورة لفتح الكاميرا.');
+        photoInput.click();
+        return;
+      }
+
+      stopLiveCamera();
+      try {
+        cameraStreamObj = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: facingMode },
+          audio: false
+        });
+        videoEl.srcObject = cameraStreamObj;
+        videoEl.style.display = 'block';
+        capturePhotoBtn.disabled = false;
+        switchCameraBtn.disabled = false;
+        stopCameraBtn.disabled = false;
+        hideStatus();
+      } catch (err) {
+        console.error(err);
+        showStatus('error', 'تعذر فتح الكاميرا المباشرة. تحقق من صلاحية الكاميرا أو استخدم حقل الصورة بالأسفل.');
+      }
+    }
+
+    function stopLiveCamera() {
+      if (cameraStreamObj) {
+        cameraStreamObj.getTracks().forEach((track) => track.stop());
+        cameraStreamObj = null;
+      }
+      videoEl.srcObject = null;
+      videoEl.style.display = 'none';
+      capturePhotoBtn.disabled = true;
+      switchCameraBtn.disabled = true;
+      stopCameraBtn.disabled = true;
+    }
+
+    openCameraBtn.addEventListener('click', startLiveCamera);
+
+    switchCameraBtn.addEventListener('click', () => {
+      facingMode = facingMode === 'environment' ? 'user' : 'environment';
+      startLiveCamera();
+    });
+
+    stopCameraBtn.addEventListener('click', stopLiveCamera);
+
+    capturePhotoBtn.addEventListener('click', () => {
+      if (!cameraStreamObj || !videoEl.videoWidth) return;
+
+      const maxWidth = 1280;
+      let width = videoEl.videoWidth;
+      let height = videoEl.videoHeight;
+      if (width > maxWidth) {
+        height = Math.round((height * maxWidth) / width);
+        width = maxWidth;
+      }
+
+      canvasEl.width = width;
+      canvasEl.height = height;
+      const ctx = canvasEl.getContext('2d');
+      ctx.drawImage(videoEl, 0, 0, width, height);
+
+      const dataUrl = canvasEl.toDataURL('image/jpeg', 0.78);
+      capturedBase64Image = {
+        base64: dataUrl.split(',')[1],
+        mimeType: 'image/jpeg',
+        fileName: `camera_${Date.now()}.jpg`
+      };
+
+      photoInput.value = '';
+      previewImg.src = dataUrl;
+      previewImg.style.display = 'block';
+      stopLiveCamera();
+    });
+
+    function compressFileToBase64(file, maxWidth = 1280, quality = 0.78) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          const img = new Image();
+          img.onload = () => {
+            const canvas = document.createElement('canvas');
+            let width = img.width;
+            let height = img.height;
+            if (width > maxWidth) {
+              height = Math.round((height * maxWidth) / width);
+              width = maxWidth;
+            }
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, width, height);
+            const dataUrl = canvas.toDataURL('image/jpeg', quality);
+            resolve({
+              base64: dataUrl.split(',')[1],
+              mimeType: 'image/jpeg',
+              fileName: `photo_${Date.now()}.jpg`
+            });
+          };
+          img.onerror = reject;
+          img.src = event.target.result;
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+
+    photoInput.addEventListener('change', async () => {
+      const file = photoInput.files[0];
+      if (!file) return;
+      try {
+        stopLiveCamera();
+        capturedBase64Image = await compressFileToBase64(file);
+        previewImg.src = URL.createObjectURL(file);
+        previewImg.style.display = 'block';
+      } catch (err) {
+        console.error(err);
+        showStatus('error', 'تعذر قراءة الصورة المختارة.');
+      }
+    });
+
+    loginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      hideStatus();
+
+      const username = document.getElementById('usernameInput').value.trim();
+      const password = document.getElementById('passwordInput').value.trim();
+
+      loginBtn.disabled = true;
+      showStatus('loading', 'جاري التحقق من بيانات الدخول وتحميل البيانات...');
+
+      try {
+        const url = `${WEB_APP_URL}?action=login&username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`;
+        const res = await fetch(url);
+        const data = await res.json();
+
+        if (!data || !data.success) {
+          showStatus('error', (data && data.message) || 'فشل تسجيل الدخول.');
+          return;
+        }
+
+        sessionAuth = {
+          username: data.user.username,
+          password: password,
+          fullName: data.user.fullName
+        };
+        staffByRoleData = data.staffByRole || {};
+        projectsListData = data.projects || [];
+        selectedMap.clear();
+
+        currentUserLabel.textContent = `${sessionAuth.fullName} (${sessionAuth.username})`;
+        populateProjectsSelect(projectsListData);
+        populateRoleFilter(staffByRoleData);
+        renderStaffGroups();
+        renderSelectedSummary();
+        handleLocationTypeChange();
+
+        loginSection.classList.add('hidden');
+        appSection.classList.remove('hidden');
+        hideStatus();
+
+        updateClock();
+        if (clockTimer) clearInterval(clockTimer);
+        clockTimer = setInterval(updateClock, 1000);
+        verifyLocation();
+      } catch (err) {
+        console.error(err);
+        showStatus('error', 'تعذر الاتصال بالخادم. تحقق من رابط Apps Script وصلاحيات النشر.');
+      } finally {
+        loginBtn.disabled = false;
+      }
+    });
+
+    logoutBtn.addEventListener('click', () => {
+      stopLiveCamera();
+      sessionAuth = { username: '', password: '', fullName: '' };
+      staffByRoleData = {};
+      projectsListData = [];
+      selectedMap.clear();
+      capturedBase64Image = null;
+      if (clockTimer) clearInterval(clockTimer);
+      loginForm.reset();
+      reportForm.reset();
+      notesInput.value = '';
+      previewImg.style.display = 'none';
+      handleLocationTypeChange();
+      renderSelectedSummary();
+      appSection.classList.add('hidden');
+      loginSection.classList.remove('hidden');
+      hideStatus();
+    });
+
+    roleFilter.addEventListener('change', renderStaffGroups);
+    searchInput.addEventListener('input', renderStaffGroups);
+
+    reportForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      hideStatus();
+
+      const locRadio = document.querySelector('input[name="locationType"]:checked');
+      if (!locRadio) {
+        showStatus('error', 'يرجى تحديد هل هم في موقع العمل أم في السكن.');
+        return;
+      }
+
+      const locationType = locRadio.value;
+      let projectCode = '';
+      let licenseCode = '';
+
+      if (locationType === 'موقع العمل') {
+        projectCode = projectSelect.value.trim();
+        if (!projectCode) {
+          showStatus('error', 'يرجى اختيار المشروع (ProjectCode).');
+          return;
+        }
+        const proj = projectsListData.find((p) => p.projectCode === projectCode);
+        const licenses = (proj && Array.isArray(proj.licenses)) ? proj.licenses : [];
+        if (licenses.length > 0) {
+          licenseCode = licenseSelect.value.trim();
+          if (!licenseCode) {
+            showStatus('error', 'يرجى اختيار الرخصة التابعة للمشروع (LicenseCode).');
+            return;
+          }
+        }
+      }
+
+      const selectedStaff = Array.from(selectedMap.values());
+      if (selectedStaff.length === 0) {
+        showStatus('error', 'يرجى اختيار موظف واحد على الأقل.');
+        return;
+      }
+
+      if (!capturedBase64Image) {
+        showStatus('error', 'يرجى التقاط صورة بالكاميرا أو إرفاق صورة أولاً.');
+        return;
+      }
+
+      submitBtn.disabled = true;
+      showStatus('loading', 'جاري التحقق من إحداثيات الموقع وحفظ البيانات...');
+
+      const locOk = await verifyLocation();
+      if (!locOk || currentCoords.latitude === null || currentCoords.longitude === null) {
+        submitBtn.disabled = false;
+        showStatus('error', 'لم يتم تأكيد إحداثيات الموقع. فعّل GPS وامنح الإذن ثم أعد المحاولة.');
+        return;
+      }
+
+      const payload = {
+        username: sessionAuth.username,
+        password: sessionAuth.password,
+        timestamp: new Date().toISOString(),
+        locationType: locationType,
+        projectCode: projectCode,
+        licenseCode: licenseCode,
+        selectedStaff: selectedStaff,
+        notes: notesInput.value.trim(),
+        latitude: currentCoords.latitude,
+        longitude: currentCoords.longitude,
+        accuracy: currentCoords.accuracy,
+        imageBase64: capturedBase64Image.base64,
+        imageMimeType: capturedBase64Image.mimeType,
+        imageName: capturedBase64Image.fileName
+      };
+
+      try {
+        const response = await fetch(WEB_APP_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify(payload)
+        });
+        const result = await response.json();
+
+        if (result && result.success) {
+          showStatus('success', result.message || 'تم حفظ البيانات والصورة بنجاح.');
+          stopLiveCamera();
+          reportForm.reset();
+          notesInput.value = '';
+          selectedMap.clear();
+          capturedBase64Image = null;
+          previewImg.style.display = 'none';
+          handleLocationTypeChange();
+          renderStaffGroups();
+          renderSelectedSummary();
+          verifyLocation();
+        } else if (result && result.unauthorized) {
+          showStatus('error', result.message);
+          logoutBtn.click();
+        } else {
+          showStatus('error', (result && result.message) || 'فشل حفظ البيانات.');
+        }
+      } catch (err) {
+        console.error(err);
+        showStatus('error', 'حدث خطأ أثناء الاتصال بالخادم.');
+      } finally {
+        submitBtn.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>
