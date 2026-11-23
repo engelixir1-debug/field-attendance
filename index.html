@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>تسجيل الدخول والمتابعة الميدانية</title>
+  <title>المتابعة الميدانية</title>
   <style>
     * { box-sizing: border-box; font-family: system-ui, -apple-system, "Segoe UI", Tahoma, sans-serif; }
     body {
@@ -153,46 +153,43 @@
       color: #92400e;
       font-weight: 600;
     }
+    .staff-picker-box {
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 12px 14px;
+      background: #fafbfc;
+      margin-bottom: 14px;
+    }
     .filter-row {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 10px;
-      margin-bottom: 14px;
-    }
-    .role-group {
-      border: 1px solid #e2e8f0;
-      border-radius: 10px;
-      padding: 12px;
-      margin-bottom: 12px;
-      background: #fafbfc;
-    }
-    .role-title {
-      font-weight: 700;
-      color: #1e40af;
       margin-bottom: 10px;
-      font-size: 0.95rem;
-      border-bottom: 1px solid #e2e8f0;
-      padding-bottom: 6px;
     }
-    .names-grid {
+    .staff-select-row {
       display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-template-columns: 1fr auto;
       gap: 8px;
-    }
-    .name-item {
-      display: flex;
       align-items: center;
-      gap: 8px;
-      background: #fff;
-      border: 1px solid #cbd5e1;
-      padding: 8px 10px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 0.88rem;
     }
-    .name-item input { width: 17px; height: 17px; accent-color: #2563eb; flex-shrink: 0; }
-    .staff-meta { display: flex; flex-direction: column; line-height: 1.3; }
-    .staff-id { font-size: 0.78rem; color: #64748b; }
+    .btn-add-staff {
+      padding: 10px 14px;
+      border: none;
+      border-radius: 9px;
+      background: #1d4ed8;
+      color: #fff;
+      font-size: 0.9rem;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .btn-add-staff:hover { background: #1e40af; }
+    .btn-add-staff:disabled { background: #94a3b8; cursor: not-allowed; }
+    .helper-hint {
+      margin: 6px 0 0;
+      font-size: 0.8rem;
+      color: #64748b;
+    }
 
     .selected-box {
       border: 1px solid #93c5fd;
@@ -288,7 +285,7 @@
   <div class="container">
     <div id="loginSection">
       <h1>تسجيل الدخول</h1>
-      <p class="subtitle">أدخل اسم المستخدم وكلمة السر المعرفة في ورقة Users.</p>
+      <p class="subtitle">أدخل اسم المستخدم وكلمة السر</p>
 
       <form id="loginForm">
         <div class="field">
@@ -311,11 +308,11 @@
         <button type="button" class="btn-secondary" id="logoutBtn">تسجيل خروج</button>
       </div>
 
-      <h1>تسجيل الموجودين والموقع</h1>
-      <p class="subtitle">يتم حفظ سجل مستقل لكل موظف مع التاريخ والوقت والمشروع والرخصة والملاحظات.</p>
+      <h1>تحضير الموظفين</h1>
 
       <div class="info-box">
-        <div><strong>التاريخ:</strong> <span id="liveDate">...</span> | <strong>الوقت:</strong> <span id="liveTime">...</span></div>
+        <div><strong>التاريخ:</strong> <span id="liveDate">...</span></div>
+        <div><strong>الوقت:</strong> <span id="liveTime">...</span></div>
         <div class="loc-row">
           <div><strong>إحداثيات الموقع:</strong> <span id="locationStatus" class="badge-warn">جاري التحقق من الموقع...</span></div>
           <button type="button" class="btn-small" id="refreshLocBtn">تحديث / التحقق من الموقع</button>
@@ -331,7 +328,7 @@
           </label>
           <label class="radio-card">
             <input type="radio" name="locationType" value="السكن" required />
-            <span>السكن</span>
+            <span>موقع السكن</span>
           </label>
         </div>
 
@@ -351,21 +348,31 @@
           <div class="license-details" id="licenseDetails"></div>
         </div>
 
-        <div class="filter-row">
-          <div>
-            <label class="label" for="roleFilter">تصفية حسب المهنة</label>
-            <select class="select" id="roleFilter">
-              <option value="ALL">جميع المهن</option>
-            </select>
+        <div class="staff-picker-box">
+          <div class="filter-row">
+            <div>
+              <label class="label" for="roleFilter">اختر المهنة</label>
+              <select class="select" id="roleFilter">
+                <option value="">-- اختر المهنة --</option>
+              </select>
+            </div>
+            <div>
+              <label class="label" for="searchInput">بحث بالاسم أو الرقم الوظيفي</label>
+              <input class="input" type="text" id="searchInput" placeholder="اكتب الاسم أو الرقم..." />
+            </div>
           </div>
-          <div>
-            <label class="label" for="searchInput">بحث بالاسم أو ID_Number</label>
-            <input class="input" type="text" id="searchInput" placeholder="اكتب الاسم أو الرقم..." />
+
+          <div class="field" style="margin-bottom: 0;">
+            <label class="label" for="staffSelect">اختر الموظف التابع للمهنة</label>
+            <div class="staff-select-row">
+              <select class="select" id="staffSelect" disabled>
+                <option value="">-- اختر المهنة أولاً --</option>
+              </select>
+              <button type="button" class="btn-add-staff" id="addAllRoleBtn" disabled>إضافة الكل</button>
+            </div>
+            <p class="helper-hint">اختر المهنة ثم اختر الموظف من القائمة المنسدلة لإضافته مباشرة إلى المجموعة المحددة.</p>
           </div>
         </div>
-
-        <span class="label">الموظفون (مقسمون حسب المهن):</span>
-        <div id="staffContainer"></div>
 
         <div class="selected-box" id="selectedSummaryBox">
           <div class="selected-box-header">
@@ -442,7 +449,8 @@
 
     const roleFilter = document.getElementById('roleFilter');
     const searchInput = document.getElementById('searchInput');
-    const staffContainer = document.getElementById('staffContainer');
+    const staffSelect = document.getElementById('staffSelect');
+    const addAllRoleBtn = document.getElementById('addAllRoleBtn');
     const selectedCountEl = document.getElementById('selectedCount');
     const selectedChipsEl = document.getElementById('selectedChips');
     const clearSelectedBtn = document.getElementById('clearSelectedBtn');
@@ -473,10 +481,10 @@
 
     function updateClock() {
       const now = new Date();
-      liveDateEl.textContent = now.toLocaleDateString('ar-SA', {
+      liveDateEl.textContent = now.toLocaleDateString('en-SA', {
         year: 'numeric', month: '2-digit', day: '2-digit'
       });
-      liveTimeEl.textContent = now.toLocaleTimeString('ar-SA', {
+      liveTimeEl.textContent = now.toLocaleTimeString('en-SA', {
         hour: '2-digit', minute: '2-digit', second: '2-digit'
       });
     }
@@ -622,14 +630,124 @@
     licenseSelect.addEventListener('change', updateLicenseDetails);
 
     function populateRoleFilter(grouped) {
-      roleFilter.innerHTML = '<option value="ALL">جميع المهن</option>';
-      Object.keys(grouped).forEach((role) => {
+      roleFilter.innerHTML = '<option value="">-- اختر المهنة --</option>';
+      const roles = Object.keys(grouped || {});
+      if (roles.length > 0) {
+        const allOpt = document.createElement('option');
+        allOpt.value = 'ALL';
+        allOpt.textContent = 'جميع المهن';
+        roleFilter.appendChild(allOpt);
+      }
+      roles.forEach((role) => {
         const opt = document.createElement('option');
         opt.value = role;
         opt.textContent = role;
         roleFilter.appendChild(opt);
       });
     }
+
+    function getFilteredStaffForDropdown() {
+      const chosenRole = roleFilter.value;
+      const keyword = searchInput.value.trim().toLowerCase();
+
+      if (!chosenRole && !keyword) {
+        return [];
+      }
+
+      const roles = Object.keys(staffByRoleData);
+      const results = [];
+
+      roles.forEach((role) => {
+        if (chosenRole && chosenRole !== 'ALL' && chosenRole !== role) return;
+        (staffByRoleData[role] || []).forEach((person) => {
+          const matchesKeyword = !keyword ||
+            person.name.toLowerCase().includes(keyword) ||
+            person.idNumber.toLowerCase().includes(keyword);
+          if (matchesKeyword) {
+            results.push({
+              idNumber: person.idNumber,
+              name: person.name,
+              role: role
+            });
+          }
+        });
+      });
+
+      return results;
+    }
+
+    function updateStaffDropdown() {
+      const chosenRole = roleFilter.value;
+      const keyword = searchInput.value.trim();
+
+      staffSelect.innerHTML = '';
+
+      if (!chosenRole && !keyword) {
+        staffSelect.disabled = true;
+        addAllRoleBtn.disabled = true;
+        const opt = document.createElement('option');
+        opt.value = '';
+        opt.textContent = '-- اختر المهنة أولاً --';
+        staffSelect.appendChild(opt);
+        return;
+      }
+
+      const list = getFilteredStaffForDropdown();
+      if (list.length === 0) {
+        staffSelect.disabled = true;
+        addAllRoleBtn.disabled = true;
+        const opt = document.createElement('option');
+        opt.value = '';
+        opt.textContent = 'لا يوجد موظفون مطابقون';
+        staffSelect.appendChild(opt);
+        return;
+      }
+
+      staffSelect.disabled = false;
+      addAllRoleBtn.disabled = false;
+
+      const defaultOpt = document.createElement('option');
+      defaultOpt.value = '';
+      defaultOpt.textContent = `-- اختر موظفاً لإضافته (${list.length}) --`;
+      staffSelect.appendChild(defaultOpt);
+
+      list.forEach((person) => {
+        const key = `${person.role}|||${person.idNumber}|||${person.name}`;
+        const alreadySelected = selectedMap.has(key);
+        const opt = document.createElement('option');
+        opt.value = key;
+        const idPart = person.idNumber ? ` (${person.idNumber})` : '';
+        const rolePart = (chosenRole === 'ALL' || !chosenRole) ? ` - ${person.role}` : '';
+        const checkMark = alreadySelected ? '✓ ' : '';
+        opt.textContent = `${checkMark}${person.name}${idPart}${rolePart}`;
+        staffSelect.appendChild(opt);
+      });
+    }
+
+    staffSelect.addEventListener('change', () => {
+      const key = staffSelect.value;
+      if (!key) return;
+      const [role, idNumber, name] = key.split('|||');
+      if (!selectedMap.has(key)) {
+        selectedMap.set(key, { idNumber: idNumber || '', name: name || '', role: role || '' });
+        renderSelectedSummary();
+      }
+      updateStaffDropdown();
+      staffSelect.value = '';
+    });
+
+    addAllRoleBtn.addEventListener('click', () => {
+      const list = getFilteredStaffForDropdown();
+      if (list.length === 0) return;
+      list.forEach((person) => {
+        const key = `${person.role}|||${person.idNumber}|||${person.name}`;
+        if (!selectedMap.has(key)) {
+          selectedMap.set(key, { idNumber: person.idNumber, name: person.name, role: person.role });
+        }
+      });
+      renderSelectedSummary();
+      updateStaffDropdown();
+    });
 
     function renderSelectedSummary() {
       const items = Array.from(selectedMap.values());
@@ -657,9 +775,8 @@
         removeBtn.textContent = '×';
         removeBtn.addEventListener('click', () => {
           selectedMap.delete(key);
-          const cb = staffContainer.querySelector(`input[data-key="${CSS.escape(key)}"]`);
-          if (cb) cb.checked = false;
           renderSelectedSummary();
+          updateStaffDropdown();
         });
 
         chip.appendChild(textSpan);
@@ -670,94 +787,9 @@
 
     clearSelectedBtn.addEventListener('click', () => {
       selectedMap.clear();
-      staffContainer.querySelectorAll('input[name="staffItem"]').forEach((cb) => {
-        cb.checked = false;
-      });
       renderSelectedSummary();
+      updateStaffDropdown();
     });
-
-    function renderStaffGroups() {
-      const chosenRole = roleFilter.value;
-      const keyword = searchInput.value.trim().toLowerCase();
-
-      staffContainer.innerHTML = '';
-      const roles = Object.keys(staffByRoleData);
-
-      if (roles.length === 0) {
-        staffContainer.innerHTML = '<p>لا يوجد موظفون مفعلون في ورقة Staff.</p>';
-        return;
-      }
-
-      let hasAnyMatch = false;
-
-      roles.forEach((role) => {
-        if (chosenRole !== 'ALL' && chosenRole !== role) return;
-
-        const matchingPeople = (staffByRoleData[role] || []).filter((person) =>
-          person.name.toLowerCase().includes(keyword) ||
-          person.idNumber.toLowerCase().includes(keyword)
-        );
-        if (matchingPeople.length === 0) return;
-
-        hasAnyMatch = true;
-        const groupDiv = document.createElement('div');
-        groupDiv.className = 'role-group';
-
-        const titleDiv = document.createElement('div');
-        titleDiv.className = 'role-title';
-        titleDiv.textContent = `المهنة: ${role}`;
-        groupDiv.appendChild(titleDiv);
-
-        const gridDiv = document.createElement('div');
-        gridDiv.className = 'names-grid';
-
-        matchingPeople.forEach((person) => {
-          const key = `${role}|||${person.idNumber}|||${person.name}`;
-          const isChecked = selectedMap.has(key);
-
-          const label = document.createElement('label');
-          label.className = 'name-item';
-
-          const cb = document.createElement('input');
-          cb.type = 'checkbox';
-          cb.name = 'staffItem';
-          cb.dataset.key = key;
-          cb.checked = isChecked;
-          cb.addEventListener('change', () => {
-            if (cb.checked) {
-              selectedMap.set(key, { idNumber: person.idNumber, name: person.name, role: role });
-            } else {
-              selectedMap.delete(key);
-            }
-            renderSelectedSummary();
-          });
-
-          const metaSpan = document.createElement('span');
-          metaSpan.className = 'staff-meta';
-          const nameSpan = document.createElement('span');
-          nameSpan.textContent = person.name;
-          metaSpan.appendChild(nameSpan);
-
-          if (person.idNumber) {
-            const idSpan = document.createElement('span');
-            idSpan.className = 'staff-id';
-            idSpan.textContent = `ID: ${person.idNumber}`;
-            metaSpan.appendChild(idSpan);
-          }
-
-          label.appendChild(cb);
-          label.appendChild(metaSpan);
-          gridDiv.appendChild(label);
-        });
-
-        groupDiv.appendChild(gridDiv);
-        staffContainer.appendChild(groupDiv);
-      });
-
-      if (!hasAnyMatch) {
-        staffContainer.innerHTML = '<p>لا توجد نتائج مطابقة للتصفية أو البحث.</p>';
-      }
-    }
 
     async function startLiveCamera() {
       if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
@@ -909,10 +941,10 @@
         projectsListData = data.projects || [];
         selectedMap.clear();
 
-        currentUserLabel.textContent = `${sessionAuth.fullName} (${sessionAuth.username})`;
+        currentUserLabel.textContent = `${sessionAuth.fullName}`;
         populateProjectsSelect(projectsListData);
         populateRoleFilter(staffByRoleData);
-        renderStaffGroups();
+        updateStaffDropdown();
         renderSelectedSummary();
         handleLocationTypeChange();
 
@@ -943,16 +975,18 @@
       loginForm.reset();
       reportForm.reset();
       notesInput.value = '';
+      searchInput.value = '';
       previewImg.style.display = 'none';
       handleLocationTypeChange();
+      updateStaffDropdown();
       renderSelectedSummary();
       appSection.classList.add('hidden');
       loginSection.classList.remove('hidden');
       hideStatus();
     });
 
-    roleFilter.addEventListener('change', renderStaffGroups);
-    searchInput.addEventListener('input', renderStaffGroups);
+    roleFilter.addEventListener('change', updateStaffDropdown);
+    searchInput.addEventListener('input', updateStaffDropdown);
 
     reportForm.addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -960,7 +994,7 @@
 
       const locRadio = document.querySelector('input[name="locationType"]:checked');
       if (!locRadio) {
-        showStatus('error', 'يرجى تحديد هل هم في موقع العمل أم في السكن.');
+        showStatus('error', 'يرجى تحديد هل هم في موقع العمل أم في موقع السكن.');
         return;
       }
 
@@ -1036,11 +1070,12 @@
           stopLiveCamera();
           reportForm.reset();
           notesInput.value = '';
+          searchInput.value = '';
           selectedMap.clear();
           capturedBase64Image = null;
           previewImg.style.display = 'none';
           handleLocationTypeChange();
-          renderStaffGroups();
+          updateStaffDropdown();
           renderSelectedSummary();
           verifyLocation();
         } else if (result && result.unauthorized) {
