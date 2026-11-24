@@ -147,6 +147,32 @@
     }
     .badge-ok { color: #15803d; font-weight: 700; }
     .badge-warn { color: #b91c1c; font-weight: 700; }
+    .geo-status-banner {
+      margin-top: 8px;
+      padding: 8px 11px;
+      border-radius: 8px;
+      font-size: 0.84rem;
+      font-weight: 700;
+      display: none;
+    }
+    .geo-in {
+      display: block;
+      background: #ecfdf5;
+      border: 1px solid #6ee7b7;
+      color: #065f46;
+    }
+    .geo-out {
+      display: block;
+      background: #fef2f2;
+      border: 1px solid #fca5a5;
+      color: #991b1b;
+    }
+    .geo-info {
+      display: block;
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      color: #1e3a8a;
+    }
     .radio-group {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -224,25 +250,6 @@
       gap: 10px;
       margin-bottom: 10px;
     }
-    .select-action-row {
-      display: grid;
-      grid-template-columns: 1fr auto;
-      gap: 8px;
-      align-items: center;
-    }
-    .btn-add-item {
-      padding: 10px 14px;
-      border: none;
-      border-radius: 9px;
-      background: #1d4ed8;
-      color: #fff;
-      font-size: 0.9rem;
-      font-weight: 700;
-      cursor: pointer;
-      white-space: nowrap;
-    }
-    .btn-add-item:hover { background: #1e40af; }
-    .btn-add-item:disabled { background: #94a3b8; cursor: not-allowed; }
     .helper-hint {
       margin: 6px 0 0;
       font-size: 0.8rem;
@@ -279,17 +286,6 @@
       padding: 6px 10px;
       border-radius: 12px;
       font-size: 0.82rem;
-      flex-wrap: wrap;
-    }
-    .chip-status-select {
-      padding: 3px 8px;
-      border: 1px solid #93c5fd;
-      border-radius: 8px;
-      background: #f8fafc;
-      color: #0f172a;
-      font-size: 0.8rem;
-      font-weight: 700;
-      cursor: pointer;
     }
     .chip-remove {
       border: none;
@@ -384,13 +380,13 @@
         <button type="button" class="module-card" id="openStaffCardBtn">
           <span class="module-icon">👷‍♂️</span>
           <span class="module-title">تحضير الموظفين</span>
-          <span class="module-desc">تسجيل حضور الموظفين في موقع العمل أو موقع السكن مع الموقع والصورة.</span>
+          <span class="module-desc">تسجيل حضور الموظفين في موقع العمل أو السكن والمستودعات مع التحقق الجغرافي.</span>
         </button>
 
         <button type="button" class="module-card" id="openEquipCardBtn">
           <span class="module-icon">🚜</span>
           <span class="module-title">تحضير المعدات في موقع العمل</span>
-          <span class="module-desc">تسجيل حضور أو انصراف المعدات في موقع العمل مع المشروع والرخصة ووقت التسجيل والصورة.</span>
+          <span class="module-desc">تسجيل حضور أو انصراف معدة واحدة في كل مرة مع حالتها التشغيلية ووقت التسجيل.</span>
         </button>
       </div>
     </div>
@@ -413,6 +409,7 @@
           <div><strong>إحداثيات الموقع:</strong> <span id="staffLocationStatus" class="badge-warn">جاري التحقق من الموقع...</span></div>
           <button type="button" class="btn-small" id="staffRefreshLocBtn">تحديث / التحقق من الموقع</button>
         </div>
+        <div id="staffGeoRangeBanner" class="geo-status-banner"></div>
       </div>
 
       <form id="staffForm">
@@ -424,10 +421,11 @@
           </label>
           <label class="radio-card">
             <input type="radio" name="locationType" value="السكن" required />
-            <span>موقع السكن</span>
+            <span>السكن / المواقع المعتمدة</span>
           </label>
         </div>
 
+        <!-- نطاق موقع العمل (المشروع والرخصة) -->
         <div class="project-box hidden" id="staffProjectSection">
           <label class="label" for="staffProjectSelect">اختر المشروع (ProjectCode):</label>
           <select class="select" id="staffProjectSelect">
@@ -442,6 +440,24 @@
           </div>
 
           <div class="license-details" id="staffLicenseDetails"></div>
+        </div>
+
+        <!-- نطاق السكن والمواقع المعتمدة -->
+        <div class="project-box hidden" id="staffHousingSection">
+          <label class="label" for="staffHousingSelect">اختر الموقع / السكن:</label>
+          <select class="select" id="staffHousingSelect">
+            <option value="">-- اختر الموقع --</option>
+            <option value="سكن بنبان">سكن بنبان</option>
+            <option value="سكن نيمار">سكن نيمار</option>
+            <option value="سكن المهدية">سكن المهدية</option>
+            <option value="مستودع نيمار">مستودع نيمار</option>
+            <option value="مستودع الخرج">مستودع الخرج</option>
+            <option value="مستودع بنبان">مستودع بنبان</option>
+            <option value="ورشة نيمار">ورشة نيمار</option>
+            <option value="المكتب الرئيسي">المكتب الرئيسي</option>
+            <option value="أخرى">أخرى</option>
+          </select>
+          <div class="license-details" id="staffHousingDetails"></div>
         </div>
 
         <div class="picker-box">
@@ -460,13 +476,10 @@
 
           <div class="field" style="margin-bottom: 0;">
             <label class="label" for="staffSelect">اختر الموظف التابع للمهنة</label>
-            <div class="select-action-row">
-              <select class="select" id="staffSelect" disabled>
-                <option value="">-- اختر المهنة أولاً --</option>
-              </select>
-              <button type="button" class="btn-add-item" id="addAllRoleBtn" disabled>إضافة الكل</button>
-            </div>
-            <p class="helper-hint">اختر المهنة ثم اختر الموظف من القائمة المنسدلة لإضافته مباشرة إلى المجموعة المحددة.</p>
+            <select class="select" id="staffSelect" disabled>
+              <option value="">-- اختر المهنة أولاً --</option>
+            </select>
+            <p class="helper-hint">اختر المهنة ثم اختر الموظف من القائمة المنسدلة لإضافته إلى المجموعة المحددة.</p>
           </div>
         </div>
 
@@ -480,7 +493,7 @@
           </div>
         </div>
 
-        <label class="label" for="staffNotesInput">ملاحظات (اختياري):</label>
+        <label class="label" id="staffNotesLabel" for="staffNotesInput">ملاحظات (اختياري):</label>
         <textarea
           class="textarea"
           id="staffNotesInput"
@@ -507,7 +520,7 @@
       </form>
     </div>
 
-    <!-- شاشة 2: تحضير المعدات في موقع العمل -->
+    <!-- شاشة 2: تحضير المعدات في موقع العمل (معدة واحدة في كل مرة) -->
     <div id="equipSection" class="hidden">
       <div class="topbar">
         <div>المستخدم: <strong id="equipUserLabel"></strong></div>
@@ -525,6 +538,7 @@
           <div><strong>إحداثيات موقع العمل:</strong> <span id="equipLocationStatus" class="badge-warn">جاري التحقق من الموقع...</span></div>
           <button type="button" class="btn-small" id="equipRefreshLocBtn">تحديث / التحقق من الموقع</button>
         </div>
+        <div id="equipGeoRangeBanner" class="geo-status-banner"></div>
       </div>
 
       <form id="equipForm">
@@ -584,17 +598,8 @@
           <div class="license-details" id="equipLicenseDetails"></div>
         </div>
 
-        <!-- اختيار المعدات -->
+        <!-- اختيار معدة واحدة فقط -->
         <div class="picker-box">
-          <div class="field">
-            <label class="label" for="equipDefaultStatus">الحالة التشغيلية الافتراضية للمعدات (Status)</label>
-            <select class="select" id="equipDefaultStatus">
-              <option value="تعمل">تعمل</option>
-              <option value="متوقفة">متوقفة</option>
-              <option value="صيانة">صيانة</option>
-            </select>
-            <p class="helper-hint">يمكنك تغيير الحالة التشغيلية لكل معدة بشكل مستقل داخل قائمة المعدات المحددة بالأسفل.</p>
-          </div>
           <div class="filter-row">
             <div>
               <label class="label" for="equipTypeFilter">اختر نوع المعدة (Type)</label>
@@ -608,33 +613,29 @@
             </div>
           </div>
 
+          <div class="field">
+            <label class="label" for="equipSelect">اختر المعدة (معدة واحدة فقط)</label>
+            <select class="select" id="equipSelect" disabled required>
+              <option value="">-- اختر نوع المعدة أولاً --</option>
+            </select>
+            <p class="helper-hint">يتم تسجيل بيانات معدة واحدة فقط في كل عملية إرسال.</p>
+          </div>
+
           <div class="field" style="margin-bottom: 0;">
-            <label class="label" for="equipSelect">اختر المعدة</label>
-            <div class="select-action-row">
-              <select class="select" id="equipSelect" disabled>
-                <option value="">-- اختر نوع المعدة أولاً --</option>
-              </select>
-              <button type="button" class="btn-add-item" id="addAllEquipBtn" disabled>إضافة الكل</button>
-            </div>
-            <p class="helper-hint">اختر نوع المعدة ثم اختر المعدة من القائمة لإضافتها إلى القائمة المحددة.</p>
+            <label class="label" for="equipStatusSelect">الحالة التشغيلية للمعدة (Status)</label>
+            <select class="select" id="equipStatusSelect" required>
+              <option value="تعمل">تعمل</option>
+              <option value="متوقفة">متوقفة</option>
+              <option value="صيانة">صيانة</option>
+            </select>
           </div>
         </div>
 
-        <div class="selected-box">
-          <div class="selected-box-header">
-            <span>المعدات المحددة قبل الاعتماد (<span id="equipSelectedCount">0</span>)</span>
-            <button type="button" class="btn-small" id="clearEquipSelectedBtn">مسح الكل</button>
-          </div>
-          <div class="chips-wrap" id="equipSelectedChips">
-            <p class="empty-selected">لم يتم اختيار أي معدة بعد.</p>
-          </div>
-        </div>
-
-        <label class="label" for="equipNotesInput">ملاحظات (اختياري):</label>
+        <label class="label" id="equipNotesLabel" for="equipNotesInput">ملاحظات (اختياري):</label>
         <textarea
           class="textarea"
           id="equipNotesInput"
-          placeholder="اكتب أي ملاحظات عن حالة المعدات أو السائق أو موقع العمل..."
+          placeholder="اكتب أي ملاحظات عن حالة المعدة أو السائق أو موقع العمل..."
         ></textarea>
 
         <div class="camera-box">
@@ -653,7 +654,7 @@
           <img id="equipPreviewImg" class="preview-img" alt="معاينة صورة المعدة" />
         </div>
 
-        <button type="submit" class="btn" id="equipSubmitBtn">اعتماد وإرسال تحضير المعدات</button>
+        <button type="submit" class="btn" id="equipSubmitBtn">اعتماد وإرسال تحضير المعدة</button>
       </form>
     </div>
 
@@ -668,9 +669,9 @@
     let staffByRoleData = {};
     let equipmentByTypeData = {};
     let projectsListData = [];
+    let locationsMapData = {};
 
     let staffSelectedMap = new Map();
-    let equipSelectedMap = new Map();
 
     let currentCoords = { latitude: null, longitude: null, accuracy: null, verified: false };
     let staffCapturedImage = null;
@@ -681,7 +682,6 @@
     let cameraStreamObj = null;
     let facingMode = 'environment';
 
-    // عناصر الشاشات
     const loginSection = document.getElementById('loginSection');
     const dashboardSection = document.getElementById('dashboardSection');
     const staffSection = document.getElementById('staffSection');
@@ -737,8 +737,8 @@
 
     function updateClock() {
       const now = new Date();
-      const d = now.toLocaleDateString('en-CA'); // YYYY-MM-DD
-      const t = now.toLocaleTimeString('en-GB', { hour12: false }); // HH:MM:SS
+      const d = now.toLocaleDateString('en-CA');
+      const t = now.toLocaleTimeString('en-GB', { hour12: false });
       document.getElementById('staffLiveDate').textContent = d;
       document.getElementById('staffLiveTime').textContent = t;
       document.getElementById('equipLiveDate').textContent = d;
@@ -758,6 +758,244 @@
       if (!timeInput.value) timeInput.value = `${hh}:${min}`;
     }
 
+    // حساب المسافة بالمتر بين نقطتين (Haversine)
+    function haversineMeters(lat1, lon1, lat2, lon2) {
+      const toRad = (deg) => (deg * Math.PI) / 180;
+      const R = 6371000;
+      const dLat = toRad(lat2 - lat1);
+      const dLon = toRad(lon2 - lon1);
+      const a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+        Math.sin(dLon / 2) * Math.sin(dLon / 2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      return R * c;
+    }
+
+    // أقصر مسافة من نقطة إلى القطعة المستقيمة بين إحداثية البداية والنهاية
+    function distanceToSegmentMeters(lat, lon, lat1, lon1, lat2, lon2) {
+      if (
+        lat1 === null || lon1 === null || isNaN(Number(lat1)) || isNaN(Number(lon1))
+      ) {
+        return null;
+      }
+      const hasEnd =
+        lat2 !== null && lon2 !== null && lat2 !== '' && lon2 !== '' &&
+        !isNaN(Number(lat2)) && !isNaN(Number(lon2));
+
+      if (!hasEnd) {
+        return haversineMeters(lat, lon, Number(lat1), Number(lon1));
+      }
+
+      const midLat = (Number(lat1) + Number(lat2)) / 2;
+      const metersPerLat = 111320;
+      const metersPerLon = 111320 * Math.cos((midLat * Math.PI) / 180);
+
+      const px = (lon - Number(lon1)) * metersPerLon;
+      const py = (lat - Number(lat1)) * metersPerLat;
+      const vx = (Number(lon2) - Number(lon1)) * metersPerLon;
+      const vy = (Number(lat2) - Number(lat1)) * metersPerLat;
+
+      const lenSq = vx * vx + vy * vy;
+      if (lenSq === 0) {
+        return Math.hypot(px, py);
+      }
+      let t = (px * vx + py * vy) / lenSq;
+      t = Math.max(0, Math.min(1, t));
+      const projX = t * vx;
+      const projY = t * vy;
+      return Math.hypot(px - projX, py - projY);
+    }
+
+    function evaluateGeoFence(zoneObj) {
+      if (!zoneObj) {
+        return { status: 'no_zone', message: '' };
+      }
+      if (zoneObj.allowAnyWithReason) {
+        return {
+          status: 'other',
+          message: 'تم اختيار (أخرى): يُسمح بالتسجيل شريطة توضيح سبب التواجد في المكان ضمن حقل الملاحظات.'
+        };
+      }
+      if (!currentCoords.verified || currentCoords.latitude === null || currentCoords.longitude === null) {
+        return {
+          status: 'no_gps',
+          message: 'يرجى تفعيل GPS والتحقق من الموقع أولاً لمقارنته بنطاق الموقع/الرخصة.'
+        };
+      }
+
+      const dist = distanceToSegmentMeters(
+        currentCoords.latitude,
+        currentCoords.longitude,
+        zoneObj.startLat,
+        zoneObj.startLng,
+        zoneObj.endLat,
+        zoneObj.endLng
+      );
+
+      if (dist === null) {
+        return {
+          status: 'no_coords_defined',
+          message: `تنبيه: لا توجد إحداثيات معرفة مسبقاً لـ (${zoneObj.label}) في الجدول.`
+        };
+      }
+
+      const radius = Number(zoneObj.radiusMeters) > 0 ? Number(zoneObj.radiusMeters) : 250;
+      const roundedDist = Math.round(dist);
+
+      if (dist <= radius) {
+        return {
+          status: 'inside',
+          distanceMeters: roundedDist,
+          radiusMeters: radius,
+          message: `ضمن النطاق المحدد لـ (${zoneObj.label}) — المسافة: ${roundedDist} م من أصل ${radius} م.`
+        };
+      }
+
+      return {
+        status: 'outside',
+        distanceMeters: roundedDist,
+        radiusMeters: radius,
+        message: `خارج نطاق (${zoneObj.label})! المسافة الحالية ${roundedDist} م (الحد المسموح ${radius} م). لن يُقبل التسجيل ما لم يتم اختيار (أخرى) مع شرح السبب في الملاحظات.`
+      };
+    }
+
+    function getActiveStaffZone() {
+      const locRadio = document.querySelector('input[name="locationType"]:checked');
+      if (!locRadio) return null;
+
+      if (locRadio.value === 'موقع العمل') {
+        const projCode = document.getElementById('staffProjectSelect').value.trim();
+        const licCode = document.getElementById('staffLicenseSelect').value.trim();
+        if (!projCode) return null;
+        const proj = projectsListData.find((p) => p.projectCode === projCode);
+        const licenses = (proj && Array.isArray(proj.licenses)) ? proj.licenses : [];
+        if (licenses.length > 0) {
+          if (!licCode) return null;
+          const lic = licenses.find((l) => l.licenseCode === licCode);
+          if (!lic) return null;
+          return {
+            label: `الرخصة ${lic.licenseCode} (${projCode})`,
+            startLat: lic.startLat,
+            startLng: lic.startLng,
+            endLat: lic.endLat,
+            endLng: lic.endLng,
+            radiusMeters: lic.radiusMeters || 250,
+            allowAnyWithReason: false
+          };
+        }
+        return {
+          label: `المشروع ${projCode}`,
+          startLat: proj ? proj.startLat : null,
+          startLng: proj ? proj.startLng : null,
+          endLat: proj ? proj.endLat : null,
+          endLng: proj ? proj.endLng : null,
+          radiusMeters: (proj && proj.radiusMeters) ? proj.radiusMeters : 250,
+          allowAnyWithReason: false
+        };
+      }
+
+      if (locRadio.value === 'السكن') {
+        const placeName = document.getElementById('staffHousingSelect').value.trim();
+        if (!placeName) return null;
+        if (placeName === 'أخرى') {
+          return {
+            label: 'أخرى',
+            allowAnyWithReason: true
+          };
+        }
+        const locInfo = locationsMapData[placeName] || {};
+        return {
+          label: placeName,
+          startLat: locInfo.startLat ?? locInfo.latitude ?? null,
+          startLng: locInfo.startLng ?? locInfo.longitude ?? null,
+          endLat: locInfo.endLat ?? null,
+          endLng: locInfo.endLng ?? null,
+          radiusMeters: locInfo.radiusMeters || 250,
+          allowAnyWithReason: false
+        };
+      }
+
+      return null;
+    }
+
+    function getActiveEquipZone() {
+      const projCode = document.getElementById('equipProjectSelect').value.trim();
+      const licCode = document.getElementById('equipLicenseSelect').value.trim();
+      if (!projCode) return null;
+      const proj = projectsListData.find((p) => p.projectCode === projCode);
+      const licenses = (proj && Array.isArray(proj.licenses)) ? proj.licenses : [];
+      if (licenses.length > 0) {
+        if (!licCode) return null;
+        const lic = licenses.find((l) => l.licenseCode === licCode);
+        if (!lic) return null;
+        return {
+          label: `الرخصة ${lic.licenseCode} (${projCode})`,
+          startLat: lic.startLat,
+          startLng: lic.startLng,
+          endLat: lic.endLat,
+          endLng: lic.endLng,
+          radiusMeters: lic.radiusMeters || 250,
+          allowAnyWithReason: false
+        };
+      }
+      return {
+        label: `المشروع ${projCode}`,
+        startLat: proj ? proj.startLat : null,
+        startLng: proj ? proj.startLng : null,
+        endLat: proj ? proj.endLat : null,
+        endLng: proj ? proj.endLng : null,
+        radiusMeters: (proj && proj.radiusMeters) ? proj.radiusMeters : 250,
+        allowAnyWithReason: false
+      };
+    }
+
+    function refreshGeoBanners() {
+      // بانر الموظفين
+      const staffBanner = document.getElementById('staffGeoRangeBanner');
+      const staffNotesLabel = document.getElementById('staffNotesLabel');
+      const staffNotesInput = document.getElementById('staffNotesInput');
+      const sZone = getActiveStaffZone();
+      const sEval = evaluateGeoFence(sZone);
+
+      if (!sZone || !sEval.message) {
+        staffBanner.className = 'geo-status-banner';
+        staffBanner.textContent = '';
+        staffNotesLabel.textContent = 'ملاحظات (اختياري):';
+        staffNotesInput.placeholder = 'اكتب أي ملاحظات إضافية عن الموقع أو المجموعة أو حالة العمل...';
+      } else if (sEval.status === 'inside') {
+        staffBanner.className = 'geo-status-banner geo-in';
+        staffBanner.textContent = sEval.message;
+        staffNotesLabel.textContent = 'ملاحظات (اختياري):';
+        staffNotesInput.placeholder = 'اكتب أي ملاحظات إضافية عن الموقع أو المجموعة أو حالة العمل...';
+      } else if (sEval.status === 'other') {
+        staffBanner.className = 'geo-status-banner geo-info';
+        staffBanner.textContent = sEval.message;
+        staffNotesLabel.textContent = 'سبب التواجد في المكان / ملاحظات (إلزامي عند اختيار أخرى):';
+        staffNotesInput.placeholder = 'اشرح هنا سبب تواجدك في هذا المكان...';
+      } else {
+        staffBanner.className = 'geo-status-banner geo-out';
+        staffBanner.textContent = sEval.message;
+        staffNotesLabel.textContent = 'ملاحظات:';
+        staffNotesInput.placeholder = 'إذا كنت خارج النطاق، اختر (أخرى) واكتب سبب التواجد هنا...';
+      }
+
+      // بانر المعدات
+      const equipBanner = document.getElementById('equipGeoRangeBanner');
+      const eZone = getActiveEquipZone();
+      const eEval = evaluateGeoFence(eZone);
+      if (!eZone || !eEval.message) {
+        equipBanner.className = 'geo-status-banner';
+        equipBanner.textContent = '';
+      } else if (eEval.status === 'inside') {
+        equipBanner.className = 'geo-status-banner geo-in';
+        equipBanner.textContent = eEval.message;
+      } else {
+        equipBanner.className = 'geo-status-banner geo-out';
+        equipBanner.textContent = eEval.message;
+      }
+    }
+
     function verifyLocation() {
       const staffLocEl = document.getElementById('staffLocationStatus');
       const equipLocEl = document.getElementById('equipLocationStatus');
@@ -769,6 +1007,7 @@
             el.className = 'badge-warn';
             el.textContent = 'المتصفح لا يدعم تحديد الموقع.';
           });
+          refreshGeoBanners();
           resolve(false);
           return;
         }
@@ -791,6 +1030,7 @@
               el.className = 'badge-ok';
               el.textContent = text;
             });
+            refreshGeoBanners();
             resolve(true);
           },
           () => {
@@ -800,6 +1040,7 @@
               el.className = 'badge-warn';
               el.textContent = text;
             });
+            refreshGeoBanners();
             resolve(false);
           },
           { enableHighAccuracy: true, timeout: 12000, maximumAge: 0 }
@@ -810,7 +1051,6 @@
     document.getElementById('staffRefreshLocBtn').addEventListener('click', verifyLocation);
     document.getElementById('equipRefreshLocBtn').addEventListener('click', verifyLocation);
 
-    // التنقل بين الشاشات
     document.getElementById('openStaffCardBtn').addEventListener('click', () => switchView('staff'));
     document.getElementById('openEquipCardBtn').addEventListener('click', () => switchView('equip'));
     document.getElementById('backFromStaffBtn').addEventListener('click', () => switchView('dashboard'));
@@ -829,16 +1069,21 @@
         if (!selectedProjCode || !selectedLicCode) {
           licDetails.className = 'license-details';
           licDetails.textContent = '';
+          refreshGeoBanners();
           return;
         }
         const proj = projectsListData.find((p) => p.projectCode === selectedProjCode);
         const lic = proj && proj.licenses ? proj.licenses.find((l) => l.licenseCode === selectedLicCode) : null;
         if (lic) {
           licDetails.className = 'license-details license-found';
+          const rangeInfo = (lic.startLat !== null && lic.startLat !== undefined && lic.startLat !== '')
+            ? ` | النطاق المسموح: ${lic.radiusMeters || 250}م`
+            : ' | (لم تُعرّف إحداثيات الرخصة بعد)';
           licDetails.textContent = lic.licenseNumber
-            ? `الرخصة المحددة: ${lic.licenseCode} | رقم الرخصة (LicenseNumber): ${lic.licenseNumber}`
-            : `الرخصة المحددة: ${lic.licenseCode}`;
+            ? `الرخصة: ${lic.licenseCode} | رقم الرخصة: ${lic.licenseNumber}${rangeInfo}`
+            : `الرخصة: ${lic.licenseCode}${rangeInfo}`;
         }
+        refreshGeoBanners();
       }
 
       function onProjectChange() {
@@ -850,6 +1095,7 @@
         if (!selectedProjCode) {
           licArea.style.display = 'none';
           licSelect.required = false;
+          refreshGeoBanners();
           return;
         }
 
@@ -876,6 +1122,7 @@
           licSelect.required = false;
           licDetails.className = 'license-details license-none';
           licDetails.textContent = 'لا توجد رخصة فعّالة مسجلة لهذا المشروع.';
+          refreshGeoBanners();
         }
       }
 
@@ -902,6 +1149,7 @@
           licArea.style.display = 'none';
           licDetails.className = 'license-details';
           licDetails.textContent = '';
+          refreshGeoBanners();
         }
       };
     }
@@ -909,21 +1157,73 @@
     const staffProjCtrl = setupProjectLicenseSelectors('staff');
     const equipProjCtrl = setupProjectLicenseSelectors('equip');
 
-    // التحكم في مكان التواجد للموظفين
+    // التحكم في مكان التواجد للموظفين (موقع العمل أو السكن/المواقع المعتمدة)
     const staffProjectSection = document.getElementById('staffProjectSection');
     const staffProjectSelect = document.getElementById('staffProjectSelect');
+    const staffHousingSection = document.getElementById('staffHousingSection');
+    const staffHousingSelect = document.getElementById('staffHousingSelect');
+    const staffHousingDetails = document.getElementById('staffHousingDetails');
+
+    function handleStaffHousingSelectChange() {
+      const val = staffHousingSelect.value.trim();
+      staffHousingDetails.className = 'license-details';
+      staffHousingDetails.textContent = '';
+
+      if (!val) {
+        refreshGeoBanners();
+        return;
+      }
+
+      if (val === 'أخرى') {
+        staffHousingDetails.className = 'license-details license-none';
+        staffHousingDetails.textContent = 'ملاحظة: عند اختيار (أخرى) يجب توضيح سبب التواجد في المكان داخل خانة الملاحظات.';
+      } else {
+        const info = locationsMapData[val];
+        if (info && info.startLat !== null && info.startLat !== undefined && info.startLat !== '') {
+          staffHousingDetails.className = 'license-details license-found';
+          staffHousingDetails.textContent = `إحداثيات (${val}) معرّفة مسبقاً — النطاق المسموح: ${info.radiusMeters || 250}م`;
+        } else {
+          staffHousingDetails.className = 'license-details license-none';
+          staffHousingDetails.textContent = `تنبيه: لم تُعرّف إحداثيات لـ (${val}) في ورقة Locations بعد.`;
+        }
+      }
+      refreshGeoBanners();
+    }
+
+    staffHousingSelect.addEventListener('change', handleStaffHousingSelectChange);
+
     function handleStaffLocationTypeChange() {
       const checkedRadio = document.querySelector('input[name="locationType"]:checked');
       const val = checkedRadio ? checkedRadio.value : '';
+
       if (val === 'موقع العمل') {
         staffProjectSection.classList.remove('hidden');
         staffProjectSelect.required = true;
+        staffHousingSection.classList.add('hidden');
+        staffHousingSelect.required = false;
+        staffHousingSelect.value = '';
+        staffHousingDetails.className = 'license-details';
+        staffHousingDetails.textContent = '';
+      } else if (val === 'السكن') {
+        staffHousingSection.classList.remove('hidden');
+        staffHousingSelect.required = true;
+        staffProjectSection.classList.add('hidden');
+        staffProjectSelect.required = false;
+        staffProjCtrl.reset();
+        handleStaffHousingSelectChange();
       } else {
         staffProjectSection.classList.add('hidden');
         staffProjectSelect.required = false;
         staffProjCtrl.reset();
+        staffHousingSection.classList.add('hidden');
+        staffHousingSelect.required = false;
+        staffHousingSelect.value = '';
+        staffHousingDetails.className = 'license-details';
+        staffHousingDetails.textContent = '';
       }
+      refreshGeoBanners();
     }
+
     document.querySelectorAll('input[name="locationType"]').forEach((r) => {
       r.addEventListener('change', handleStaffLocationTypeChange);
     });
@@ -954,7 +1254,6 @@
     const roleFilter = document.getElementById('roleFilter');
     const staffSearchInput = document.getElementById('staffSearchInput');
     const staffSelect = document.getElementById('staffSelect');
-    const addAllRoleBtn = document.getElementById('addAllRoleBtn');
     const staffSelectedCountEl = document.getElementById('staffSelectedCount');
     const staffSelectedChipsEl = document.getElementById('staffSelectedChips');
 
@@ -1002,7 +1301,6 @@
 
       if (!chosenRole && !keyword) {
         staffSelect.disabled = true;
-        addAllRoleBtn.disabled = true;
         staffSelect.innerHTML = '<option value="">-- اختر المهنة أولاً --</option>';
         return;
       }
@@ -1010,13 +1308,11 @@
       const list = getFilteredStaff();
       if (list.length === 0) {
         staffSelect.disabled = true;
-        addAllRoleBtn.disabled = true;
         staffSelect.innerHTML = '<option value="">لا يوجد موظفون مطابقون</option>';
         return;
       }
 
       staffSelect.disabled = false;
-      addAllRoleBtn.disabled = false;
       const defOpt = document.createElement('option');
       defOpt.value = '';
       defOpt.textContent = `-- اختر موظفاً لإضافته (${list.length}) --`;
@@ -1043,17 +1339,6 @@
       }
       updateStaffDropdown();
       staffSelect.value = '';
-    });
-
-    addAllRoleBtn.addEventListener('click', () => {
-      getFilteredStaff().forEach((person) => {
-        const key = `${person.role}|||${person.idNumber}|||${person.name}`;
-        if (!staffSelectedMap.has(key)) {
-          staffSelectedMap.set(key, { idNumber: person.idNumber, name: person.name, role: person.role });
-        }
-      });
-      renderStaffSelectedChips();
-      updateStaffDropdown();
     });
 
     function renderStaffSelectedChips() {
@@ -1095,13 +1380,10 @@
     roleFilter.addEventListener('change', updateStaffDropdown);
     staffSearchInput.addEventListener('input', updateStaffDropdown);
 
-    // ========== منطق اختيار المعدات ==========
+    // ========== منطق اختيار معدة واحدة فقط للمعدات ==========
     const equipTypeFilter = document.getElementById('equipTypeFilter');
     const equipSearchInput = document.getElementById('equipSearchInput');
     const equipSelect = document.getElementById('equipSelect');
-    const addAllEquipBtn = document.getElementById('addAllEquipBtn');
-    const equipSelectedCountEl = document.getElementById('equipSelectedCount');
-    const equipSelectedChipsEl = document.getElementById('equipSelectedChips');
 
     function populateEquipTypeFilter(grouped) {
       equipTypeFilter.innerHTML = '<option value="">-- اختر نوع المعدة --</option>';
@@ -1153,7 +1435,6 @@
 
       if (!chosenType && !keyword) {
         equipSelect.disabled = true;
-        addAllEquipBtn.disabled = true;
         equipSelect.innerHTML = '<option value="">-- اختر نوع المعدة أولاً --</option>';
         return;
       }
@@ -1161,16 +1442,14 @@
       const list = getFilteredEquipments();
       if (list.length === 0) {
         equipSelect.disabled = true;
-        addAllEquipBtn.disabled = true;
         equipSelect.innerHTML = '<option value="">لا توجد معدات مطابقة</option>';
         return;
       }
 
       equipSelect.disabled = false;
-      addAllEquipBtn.disabled = false;
       const defOpt = document.createElement('option');
       defOpt.value = '';
-      defOpt.textContent = `-- اختر معدة لإضافتها (${list.length}) --`;
+      defOpt.textContent = `-- اختر معدة واحدة (${list.length}) --`;
       equipSelect.appendChild(defOpt);
 
       list.forEach((eq) => {
@@ -1180,103 +1459,10 @@
         const idPart = eq.equipmentId ? ` (${eq.equipmentId})` : '';
         const platePart = eq.plateOrSerial ? ` [${eq.plateOrSerial}]` : '';
         const typePart = (chosenType === 'ALL' || !chosenType) ? ` - ${eq.type}` : '';
-        opt.textContent = `${equipSelectedMap.has(key) ? '✓ ' : ''}${eq.name}${idPart}${platePart}${typePart}`;
+        opt.textContent = `${eq.name}${idPart}${platePart}${typePart}`;
         equipSelect.appendChild(opt);
       });
     }
-
-    const equipDefaultStatusEl = document.getElementById('equipDefaultStatus');
-
-    function getDefaultEquipStatus() {
-      return (equipDefaultStatusEl && equipDefaultStatusEl.value) ? equipDefaultStatusEl.value : 'تعمل';
-    }
-
-    equipSelect.addEventListener('change', () => {
-      const key = equipSelect.value;
-      if (!key) return;
-      const [type, equipmentId, name, plateOrSerial] = key.split('|||');
-      if (!equipSelectedMap.has(key)) {
-        equipSelectedMap.set(key, {
-          equipmentId: equipmentId || '',
-          name: name || '',
-          type: type || '',
-          plateOrSerial: plateOrSerial || '',
-          status: getDefaultEquipStatus()
-        });
-        renderEquipSelectedChips();
-      }
-      updateEquipDropdown();
-      equipSelect.value = '';
-    });
-
-    addAllEquipBtn.addEventListener('click', () => {
-      const defStatus = getDefaultEquipStatus();
-      getFilteredEquipments().forEach((eq) => {
-        const key = `${eq.type}|||${eq.equipmentId}|||${eq.name}|||${eq.plateOrSerial}`;
-        if (!equipSelectedMap.has(key)) {
-          equipSelectedMap.set(key, { ...eq, status: defStatus });
-        }
-      });
-      renderEquipSelectedChips();
-      updateEquipDropdown();
-    });
-
-    function renderEquipSelectedChips() {
-      const items = Array.from(equipSelectedMap.values());
-      equipSelectedCountEl.textContent = String(items.length);
-      if (items.length === 0) {
-        equipSelectedChipsEl.innerHTML = '<p class="empty-selected">لم يتم اختيار أي معدة بعد.</p>';
-        return;
-      }
-      equipSelectedChipsEl.innerHTML = '';
-      items.forEach((item) => {
-        const key = `${item.type}|||${item.equipmentId}|||${item.name}|||${item.plateOrSerial}`;
-        const chip = document.createElement('span');
-        chip.className = 'chip';
-        const idText = item.equipmentId ? ` [${item.equipmentId}]` : '';
-        const plateText = item.plateOrSerial ? ` (${item.plateOrSerial})` : '';
-        const span = document.createElement('span');
-        span.textContent = `${item.name}${idText}${plateText} — ${item.type}`;
-
-        const statusSel = document.createElement('select');
-        statusSel.className = 'chip-status-select';
-        statusSel.setAttribute('aria-label', 'الحالة التشغيلية');
-        ['تعمل', 'متوقفة', 'صيانة'].forEach((st) => {
-          const opt = document.createElement('option');
-          opt.value = st;
-          opt.textContent = st;
-          if ((item.status || 'تعمل') === st) opt.selected = true;
-          statusSel.appendChild(opt);
-        });
-        statusSel.addEventListener('change', () => {
-          const current = equipSelectedMap.get(key);
-          if (current) {
-            current.status = statusSel.value;
-            equipSelectedMap.set(key, current);
-          }
-        });
-
-        const btn = document.createElement('button');
-        btn.type = 'button';
-        btn.className = 'chip-remove';
-        btn.textContent = '×';
-        btn.addEventListener('click', () => {
-          equipSelectedMap.delete(key);
-          renderEquipSelectedChips();
-          updateEquipDropdown();
-        });
-        chip.appendChild(span);
-        chip.appendChild(statusSel);
-        chip.appendChild(btn);
-        equipSelectedChipsEl.appendChild(chip);
-      });
-    }
-
-    document.getElementById('clearEquipSelectedBtn').addEventListener('click', () => {
-      equipSelectedMap.clear();
-      renderEquipSelectedChips();
-      updateEquipDropdown();
-    });
 
     equipTypeFilter.addEventListener('change', updateEquipDropdown);
     equipSearchInput.addEventListener('input', updateEquipDropdown);
@@ -1429,9 +1615,9 @@
         staffByRoleData = data.staffByRole || {};
         equipmentByTypeData = data.equipmentByType || {};
         projectsListData = data.projects || [];
+        locationsMapData = data.locationsMap || {};
 
         staffSelectedMap.clear();
-        equipSelectedMap.clear();
 
         document.getElementById('dashUserLabel').textContent = sessionAuth.fullName;
         document.getElementById('staffUserLabel').textContent = sessionAuth.fullName;
@@ -1447,7 +1633,6 @@
 
         populateEquipTypeFilter(equipmentByTypeData);
         updateEquipDropdown();
-        renderEquipSelectedChips();
         handleEquipTimeModeChange();
 
         updateClock();
@@ -1469,8 +1654,8 @@
       staffByRoleData = {};
       equipmentByTypeData = {};
       projectsListData = [];
+      locationsMapData = {};
       staffSelectedMap.clear();
-      equipSelectedMap.clear();
       staffCapturedImage = null;
       equipCapturedImage = null;
       if (clockTimer) clearInterval(clockTimer);
@@ -1495,13 +1680,15 @@
 
       const locRadio = document.querySelector('input[name="locationType"]:checked');
       if (!locRadio) {
-        showStatus('error', 'يرجى تحديد هل هم في موقع العمل أم في موقع السكن.');
+        showStatus('error', 'يرجى تحديد هل هم في موقع العمل أم في السكن / المواقع المعتمدة.');
         return;
       }
 
       const locationType = locRadio.value;
       let projectCode = '';
       let licenseCode = '';
+      let housingLocation = '';
+      const notesText = document.getElementById('staffNotesInput').value.trim();
 
       if (locationType === 'موقع العمل') {
         projectCode = document.getElementById('staffProjectSelect').value.trim();
@@ -1518,6 +1705,16 @@
             return;
           }
         }
+      } else if (locationType === 'السكن') {
+        housingLocation = staffHousingSelect.value.trim();
+        if (!housingLocation) {
+          showStatus('error', 'يرجى اختيار الموقع من القائمة المنسدلة.');
+          return;
+        }
+        if (housingLocation === 'أخرى' && !notesText) {
+          showStatus('error', 'عند اختيار (أخرى) يجب شرح سبب التواجد في المكان ضمن خانة الملاحظات.');
+          return;
+        }
       }
 
       const selectedStaff = Array.from(staffSelectedMap.values());
@@ -1533,12 +1730,20 @@
 
       const submitBtn = document.getElementById('staffSubmitBtn');
       submitBtn.disabled = true;
-      showStatus('loading', 'جاري التحقق من إحداثيات الموقع وحفظ تحضير الموظفين...');
+      showStatus('loading', 'جاري التحقق من إحداثيات الموقع والنطاق وحفظ تحضير الموظفين...');
 
       const locOk = await verifyLocation();
       if (!locOk || currentCoords.latitude === null || currentCoords.longitude === null) {
         submitBtn.disabled = false;
         showStatus('error', 'لم يتم تأكيد إحداثيات الموقع. فعّل GPS وامنح الإذن ثم أعد المحاولة.');
+        return;
+      }
+
+      const zone = getActiveStaffZone();
+      const geoEval = evaluateGeoFence(zone);
+      if (geoEval.status === 'outside') {
+        submitBtn.disabled = false;
+        showStatus('error', `رفض النظام التسجيل: أنت خارج النطاق المحدد لـ (${zone.label}) بمسافة ${geoEval.distanceMeters} م. يرجى اختيار (أخرى) وشرح سبب التواجد في الملاحظات.`);
         return;
       }
 
@@ -1548,10 +1753,11 @@
         password: sessionAuth.password,
         timestamp: new Date().toISOString(),
         locationType: locationType,
+        housingLocation: housingLocation,
         projectCode: projectCode,
         licenseCode: licenseCode,
         selectedStaff: selectedStaff,
-        notes: document.getElementById('staffNotesInput').value.trim(),
+        notes: notesText,
         latitude: currentCoords.latitude,
         longitude: currentCoords.longitude,
         accuracy: currentCoords.accuracy,
@@ -1594,7 +1800,7 @@
       }
     });
 
-    // ========== إرسال نموذج تحضير المعدات في موقع العمل ==========
+    // ========== إرسال نموذج تحضير المعدات (معدة واحدة في كل مرة) ==========
     document.getElementById('equipForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       hideStatus();
@@ -1604,7 +1810,7 @@
         showStatus('error', 'يرجى اختيار الإجراء (حضور أو انصراف من موقع العمل).');
         return;
       }
-      const actionType = actionRadio.value; // 'حضور' أو 'انصراف'
+      const actionType = actionRadio.value;
 
       const timeModeRadio = document.querySelector('input[name="equipTimeMode"]:checked');
       const timeMode = timeModeRadio ? timeModeRadio.value : 'auto';
@@ -1638,11 +1844,13 @@
         }
       }
 
-      const selectedEquipment = Array.from(equipSelectedMap.values());
-      if (selectedEquipment.length === 0) {
-        showStatus('error', 'يرجى اختيار معدة واحدة على الأقل.');
+      const eqKey = equipSelect.value.trim();
+      if (!eqKey) {
+        showStatus('error', 'يرجى اختيار معدة واحدة.');
         return;
       }
+      const [eqType, equipmentId, eqName, plateOrSerial] = eqKey.split('|||');
+      const equipStatus = document.getElementById('equipStatusSelect').value;
 
       if (!equipCapturedImage) {
         showStatus('error', 'يرجى التقاط صورة للمعدة بالكاميرا أو إرفاق صورة أولاً.');
@@ -1651,7 +1859,7 @@
 
       const submitBtn = document.getElementById('equipSubmitBtn');
       submitBtn.disabled = true;
-      showStatus('loading', 'جاري التحقق من إحداثيات موقع العمل وحفظ سجل المعدات...');
+      showStatus('loading', 'جاري التحقق من إحداثيات موقع العمل وحفظ سجل المعدة...');
 
       const locOk = await verifyLocation();
       if (!locOk || currentCoords.latitude === null || currentCoords.longitude === null) {
@@ -1659,6 +1867,22 @@
         showStatus('error', 'لم يتم تأكيد إحداثيات موقع العمل. فعّل GPS وامنح الإذن ثم أعد المحاولة.');
         return;
       }
+
+      const zone = getActiveEquipZone();
+      const geoEval = evaluateGeoFence(zone);
+      if (geoEval.status === 'outside') {
+        submitBtn.disabled = false;
+        showStatus('error', `رفض النظام التسجيل: الموقع الحالي خارج نطاق (${zone.label}) بمسافة ${geoEval.distanceMeters} م.`);
+        return;
+      }
+
+      const singleEquipmentItem = {
+        equipmentId: equipmentId || '',
+        name: eqName || '',
+        type: eqType || '',
+        plateOrSerial: plateOrSerial || '',
+        status: equipStatus
+      };
 
       const payload = {
         recordType: 'equipment',
@@ -1671,7 +1895,8 @@
         manualTime: manualTime,
         projectCode: projectCode,
         licenseCode: licenseCode,
-        selectedEquipment: selectedEquipment,
+        equipment: singleEquipmentItem,
+        selectedEquipment: [singleEquipmentItem],
         notes: document.getElementById('equipNotesInput').value.trim(),
         latitude: currentCoords.latitude,
         longitude: currentCoords.longitude,
@@ -1690,23 +1915,21 @@
         const result = await response.json();
 
         if (result && result.success) {
-          showStatus('success', result.message || 'تم حفظ سجل المعدات بنجاح.');
+          showStatus('success', result.message || 'تم حفظ سجل المعدة بنجاح.');
           stopLiveCamera();
           document.getElementById('equipForm').reset();
           equipSearchInput.value = '';
-          equipSelectedMap.clear();
           equipCapturedImage = null;
           document.getElementById('equipPreviewImg').style.display = 'none';
           equipProjCtrl.reset();
           handleEquipTimeModeChange();
           updateEquipDropdown();
-          renderEquipSelectedChips();
           verifyLocation();
         } else if (result && result.unauthorized) {
           showStatus('error', result.message);
           handleLogout();
         } else {
-          showStatus('error', (result && result.message) || 'فشل حفظ سجل المعدات.');
+          showStatus('error', (result && result.message) || 'فشل حفظ سجل المعدة.');
         }
       } catch (err) {
         console.error(err);
