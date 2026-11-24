@@ -13,7 +13,7 @@
       padding: 18px;
     }
     .container {
-      max-width: 640px;
+      max-width: 660px;
       margin: 0 auto;
       background: #ffffff;
       border-radius: 14px;
@@ -83,6 +83,51 @@
       margin-bottom: 16px;
       font-size: 0.9rem;
     }
+    .topbar-actions {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 12px;
+    }
+    @media (max-width: 520px) {
+      .dashboard-grid { grid-template-columns: 1fr; }
+    }
+    .module-card {
+      border: 2px solid #cbd5e1;
+      border-radius: 14px;
+      padding: 20px 16px;
+      background: #f8fafc;
+      cursor: pointer;
+      text-align: right;
+      transition: all 0.15s ease;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .module-card:hover {
+      border-color: #2563eb;
+      background: #eff6ff;
+      transform: translateY(-2px);
+    }
+    .module-icon {
+      font-size: 1.8rem;
+      line-height: 1;
+    }
+    .module-title {
+      font-size: 1.08rem;
+      font-weight: 800;
+      color: #0f172a;
+    }
+    .module-desc {
+      font-size: 0.85rem;
+      color: #475569;
+      line-height: 1.5;
+    }
     .info-box {
       background: #f8fafc;
       border: 1px solid #e2e8f0;
@@ -121,6 +166,19 @@
       font-size: 0.92rem;
     }
     .radio-card input { width: 18px; height: 18px; accent-color: #2563eb; }
+    .time-mode-box {
+      border: 1px solid #e2e8f0;
+      background: #f8fafc;
+      border-radius: 10px;
+      padding: 12px 14px;
+      margin-bottom: 16px;
+    }
+    .manual-time-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 10px;
+    }
     .project-box {
       border: 1px solid #cbd5e1;
       background: #f8fafc;
@@ -153,7 +211,7 @@
       color: #92400e;
       font-weight: 600;
     }
-    .staff-picker-box {
+    .picker-box {
       border: 1px solid #e2e8f0;
       border-radius: 10px;
       padding: 12px 14px;
@@ -166,13 +224,13 @@
       gap: 10px;
       margin-bottom: 10px;
     }
-    .staff-select-row {
+    .select-action-row {
       display: grid;
       grid-template-columns: 1fr auto;
       gap: 8px;
       align-items: center;
     }
-    .btn-add-staff {
+    .btn-add-item {
       padding: 10px 14px;
       border: none;
       border-radius: 9px;
@@ -183,14 +241,13 @@
       cursor: pointer;
       white-space: nowrap;
     }
-    .btn-add-staff:hover { background: #1e40af; }
-    .btn-add-staff:disabled { background: #94a3b8; cursor: not-allowed; }
+    .btn-add-item:hover { background: #1e40af; }
+    .btn-add-item:disabled { background: #94a3b8; cursor: not-allowed; }
     .helper-hint {
       margin: 6px 0 0;
       font-size: 0.8rem;
       color: #64748b;
     }
-
     .selected-box {
       border: 1px solid #93c5fd;
       background: #eff6ff;
@@ -219,9 +276,20 @@
       background: #ffffff;
       border: 1px solid #bfdbfe;
       color: #0f172a;
-      padding: 5px 10px;
-      border-radius: 999px;
+      padding: 6px 10px;
+      border-radius: 12px;
       font-size: 0.82rem;
+      flex-wrap: wrap;
+    }
+    .chip-status-select {
+      padding: 3px 8px;
+      border: 1px solid #93c5fd;
+      border-radius: 8px;
+      background: #f8fafc;
+      color: #0f172a;
+      font-size: 0.8rem;
+      font-weight: 700;
+      cursor: pointer;
     }
     .chip-remove {
       border: none;
@@ -237,7 +305,6 @@
       padding: 0;
     }
     .empty-selected { color: #64748b; font-size: 0.85rem; margin: 0; }
-
     .camera-box {
       border: 1px solid #e2e8f0;
       background: #f8fafc;
@@ -251,7 +318,7 @@
       flex-wrap: wrap;
       margin-bottom: 10px;
     }
-    video#cameraStream {
+    video.camera-stream {
       display: none;
       width: 100%;
       max-height: 260px;
@@ -283,6 +350,7 @@
 </head>
 <body>
   <div class="container">
+    <!-- شاشة تسجيل الدخول -->
     <div id="loginSection">
       <h1>تسجيل الدخول</h1>
       <p class="subtitle">أدخل اسم المستخدم وكلمة السر</p>
@@ -302,24 +370,52 @@
       </form>
     </div>
 
-    <div id="appSection" class="hidden">
+    <!-- الشاشة الرئيسية بعد تسجيل الدخول (البطاقتان) -->
+    <div id="dashboardSection" class="hidden">
       <div class="topbar">
-        <div>مرحباً، <strong id="currentUserLabel"></strong></div>
-        <button type="button" class="btn-secondary" id="logoutBtn">تسجيل خروج</button>
+        <div>مرحباً، <strong id="dashUserLabel"></strong></div>
+        <button type="button" class="btn-secondary" id="dashLogoutBtn">تسجيل خروج</button>
+      </div>
+
+      <h1>لوحة المتابعة الميدانية</h1>
+      <p class="subtitle">اختر الخدمة المطلوبة للمتابعة:</p>
+
+      <div class="dashboard-grid">
+        <button type="button" class="module-card" id="openStaffCardBtn">
+          <span class="module-icon">👷‍♂️</span>
+          <span class="module-title">تحضير الموظفين</span>
+          <span class="module-desc">تسجيل حضور الموظفين في موقع العمل أو موقع السكن مع الموقع والصورة.</span>
+        </button>
+
+        <button type="button" class="module-card" id="openEquipCardBtn">
+          <span class="module-icon">🚜</span>
+          <span class="module-title">تحضير المعدات في موقع العمل</span>
+          <span class="module-desc">تسجيل حضور أو انصراف المعدات في موقع العمل مع المشروع والرخصة ووقت التسجيل والصورة.</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- شاشة 1: تحضير الموظفين -->
+    <div id="staffSection" class="hidden">
+      <div class="topbar">
+        <div>المستخدم: <strong id="staffUserLabel"></strong></div>
+        <div class="topbar-actions">
+          <button type="button" class="btn-small" id="backFromStaffBtn">القائمة الرئيسية</button>
+          <button type="button" class="btn-secondary" id="staffLogoutBtn">خروج</button>
+        </div>
       </div>
 
       <h1>تحضير الموظفين</h1>
 
       <div class="info-box">
-        <div><strong>التاريخ:</strong> <span id="liveDate">...</span></div>
-        <div><strong>الوقت:</strong> <span id="liveTime">...</span></div>
+        <div><strong>التاريخ:</strong> <span id="staffLiveDate">...</span> | <strong>الوقت:</strong> <span id="staffLiveTime">...</span></div>
         <div class="loc-row">
-          <div><strong>إحداثيات الموقع:</strong> <span id="locationStatus" class="badge-warn">جاري التحقق من الموقع...</span></div>
-          <button type="button" class="btn-small" id="refreshLocBtn">تحديث / التحقق من الموقع</button>
+          <div><strong>إحداثيات الموقع:</strong> <span id="staffLocationStatus" class="badge-warn">جاري التحقق من الموقع...</span></div>
+          <button type="button" class="btn-small" id="staffRefreshLocBtn">تحديث / التحقق من الموقع</button>
         </div>
       </div>
 
-      <form id="reportForm">
+      <form id="staffForm">
         <span class="label">مكان تواجد المجموعة:</span>
         <div class="radio-group">
           <label class="radio-card">
@@ -332,23 +428,23 @@
           </label>
         </div>
 
-        <div class="project-box hidden" id="projectSection">
-          <label class="label" for="projectSelect">اختر المشروع (ProjectCode):</label>
-          <select class="select" id="projectSelect">
+        <div class="project-box hidden" id="staffProjectSection">
+          <label class="label" for="staffProjectSelect">اختر المشروع (ProjectCode):</label>
+          <select class="select" id="staffProjectSelect">
             <option value="">-- اختر المشروع --</option>
           </select>
 
-          <div class="license-area" id="licenseArea">
-            <label class="label" for="licenseSelect">الرخصة التابعة للمشروع (LicenseCode):</label>
-            <select class="select" id="licenseSelect">
+          <div class="license-area" id="staffLicenseArea">
+            <label class="label" for="staffLicenseSelect">الرخصة التابعة للمشروع (LicenseCode):</label>
+            <select class="select" id="staffLicenseSelect">
               <option value="">-- اختر الرخصة --</option>
             </select>
           </div>
 
-          <div class="license-details" id="licenseDetails"></div>
+          <div class="license-details" id="staffLicenseDetails"></div>
         </div>
 
-        <div class="staff-picker-box">
+        <div class="picker-box">
           <div class="filter-row">
             <div>
               <label class="label" for="roleFilter">اختر المهنة</label>
@@ -357,57 +453,207 @@
               </select>
             </div>
             <div>
-              <label class="label" for="searchInput">بحث بالاسم أو الرقم الوظيفي</label>
-              <input class="input" type="text" id="searchInput" placeholder="اكتب الاسم أو الرقم..." />
+              <label class="label" for="staffSearchInput">بحث بالاسم أو الرقم الوظيفي</label>
+              <input class="input" type="text" id="staffSearchInput" placeholder="اكتب الاسم أو الرقم..." />
             </div>
           </div>
 
           <div class="field" style="margin-bottom: 0;">
             <label class="label" for="staffSelect">اختر الموظف التابع للمهنة</label>
-            <div class="staff-select-row">
+            <div class="select-action-row">
               <select class="select" id="staffSelect" disabled>
                 <option value="">-- اختر المهنة أولاً --</option>
               </select>
-              <button type="button" class="btn-add-staff" id="addAllRoleBtn" disabled>إضافة الكل</button>
+              <button type="button" class="btn-add-item" id="addAllRoleBtn" disabled>إضافة الكل</button>
             </div>
             <p class="helper-hint">اختر المهنة ثم اختر الموظف من القائمة المنسدلة لإضافته مباشرة إلى المجموعة المحددة.</p>
           </div>
         </div>
 
-        <div class="selected-box" id="selectedSummaryBox">
+        <div class="selected-box">
           <div class="selected-box-header">
-            <span>المجموعة المحددة قبل الاعتماد (<span id="selectedCount">0</span>)</span>
-            <button type="button" class="btn-small" id="clearSelectedBtn">مسح الكل</button>
+            <span>المجموعة المحددة قبل الاعتماد (<span id="staffSelectedCount">0</span>)</span>
+            <button type="button" class="btn-small" id="clearStaffSelectedBtn">مسح الكل</button>
           </div>
-          <div class="chips-wrap" id="selectedChips">
+          <div class="chips-wrap" id="staffSelectedChips">
             <p class="empty-selected">لم يتم اختيار أي موظف بعد.</p>
           </div>
         </div>
 
-        <label class="label" for="notesInput">ملاحظات (اختياري):</label>
+        <label class="label" for="staffNotesInput">ملاحظات (اختياري):</label>
         <textarea
           class="textarea"
-          id="notesInput"
+          id="staffNotesInput"
           placeholder="اكتب أي ملاحظات إضافية عن الموقع أو المجموعة أو حالة العمل..."
         ></textarea>
 
         <div class="camera-box">
           <span class="label">الصورة (التقاط مباشر بالكاميرا أو إرفاق ملف):</span>
           <div class="camera-actions">
-            <button type="button" class="btn-small" id="openCameraBtn">فتح الكاميرا المباشرة</button>
-            <button type="button" class="btn-small" id="capturePhotoBtn" disabled>التقاط صورة الآن</button>
-            <button type="button" class="btn-small" id="switchCameraBtn" disabled>تبديل الكاميرا</button>
-            <button type="button" class="btn-secondary" id="stopCameraBtn" disabled>إيقاف الكاميرا</button>
+            <button type="button" class="btn-small" id="staffOpenCameraBtn">فتح الكاميرا المباشرة</button>
+            <button type="button" class="btn-small" id="staffCapturePhotoBtn" disabled>التقاط صورة الآن</button>
+            <button type="button" class="btn-small" id="staffSwitchCameraBtn" disabled>تبديل الكاميرا</button>
+            <button type="button" class="btn-secondary" id="staffStopCameraBtn" disabled>إيقاف الكاميرا</button>
           </div>
 
-          <video id="cameraStream" autoplay playsinline muted></video>
-          <canvas id="captureCanvas" class="hidden"></canvas>
+          <video id="staffCameraStream" class="camera-stream" autoplay playsinline muted></video>
+          <canvas id="staffCaptureCanvas" class="hidden"></canvas>
 
-          <input class="file-input" type="file" id="photoInput" accept="image/*" capture="environment" />
-          <img id="previewImg" class="preview-img" alt="معاينة الصورة" />
+          <input class="file-input" type="file" id="staffPhotoInput" accept="image/*" capture="environment" />
+          <img id="staffPreviewImg" class="preview-img" alt="معاينة الصورة" />
         </div>
 
-        <button type="submit" class="btn" id="submitBtn">اعتماد وإرسال البيانات</button>
+        <button type="submit" class="btn" id="staffSubmitBtn">اعتماد وإرسال تحضير الموظفين</button>
+      </form>
+    </div>
+
+    <!-- شاشة 2: تحضير المعدات في موقع العمل -->
+    <div id="equipSection" class="hidden">
+      <div class="topbar">
+        <div>المستخدم: <strong id="equipUserLabel"></strong></div>
+        <div class="topbar-actions">
+          <button type="button" class="btn-small" id="backFromEquipBtn">القائمة الرئيسية</button>
+          <button type="button" class="btn-secondary" id="equipLogoutBtn">خروج</button>
+        </div>
+      </div>
+
+      <h1>تحضير المعدات في موقع العمل</h1>
+
+      <div class="info-box">
+        <div><strong>التاريخ الحالي:</strong> <span id="equipLiveDate">...</span> | <strong>الوقت الحالي:</strong> <span id="equipLiveTime">...</span></div>
+        <div class="loc-row">
+          <div><strong>إحداثيات موقع العمل:</strong> <span id="equipLocationStatus" class="badge-warn">جاري التحقق من الموقع...</span></div>
+          <button type="button" class="btn-small" id="equipRefreshLocBtn">تحديث / التحقق من الموقع</button>
+        </div>
+      </div>
+
+      <form id="equipForm">
+        <!-- اختيار الإجراء: حضور أو انصراف -->
+        <span class="label">نوع الإجراء في موقع العمل:</span>
+        <div class="radio-group">
+          <label class="radio-card">
+            <input type="radio" name="equipActionType" value="حضور" required />
+            <span>حضور إلى موقع العمل</span>
+          </label>
+          <label class="radio-card">
+            <input type="radio" name="equipActionType" value="انصراف" required />
+            <span>انصراف من موقع العمل</span>
+          </label>
+        </div>
+
+        <!-- اختيار وقت التسجيل: تلقائي أو يدوي -->
+        <div class="time-mode-box">
+          <span class="label">وقت الحضور / الانصراف:</span>
+          <div class="radio-group" style="margin-bottom: 0;">
+            <label class="radio-card">
+              <input type="radio" name="equipTimeMode" value="auto" checked />
+              <span>الوقت التلقائي الحالي</span>
+            </label>
+            <label class="radio-card">
+              <input type="radio" name="equipTimeMode" value="manual" />
+              <span>إدخال الوقت يدوياً</span>
+            </label>
+          </div>
+
+          <div class="manual-time-grid hidden" id="manualTimeFields">
+            <div>
+              <label class="label" for="equipManualDate">التاريخ</label>
+              <input class="input" type="date" id="equipManualDate" />
+            </div>
+            <div>
+              <label class="label" for="equipManualTime">الوقت</label>
+              <input class="input" type="time" id="equipManualTime" step="1" />
+            </div>
+          </div>
+        </div>
+
+        <!-- المشروع والرخصة -->
+        <div class="project-box">
+          <label class="label" for="equipProjectSelect">اختر المشروع (ProjectCode):</label>
+          <select class="select" id="equipProjectSelect" required>
+            <option value="">-- اختر المشروع --</option>
+          </select>
+
+          <div class="license-area" id="equipLicenseArea">
+            <label class="label" for="equipLicenseSelect">الرخصة التابعة للمشروع (LicenseCode):</label>
+            <select class="select" id="equipLicenseSelect">
+              <option value="">-- اختر الرخصة --</option>
+            </select>
+          </div>
+
+          <div class="license-details" id="equipLicenseDetails"></div>
+        </div>
+
+        <!-- اختيار المعدات -->
+        <div class="picker-box">
+          <div class="field">
+            <label class="label" for="equipDefaultStatus">الحالة التشغيلية الافتراضية للمعدات (Status)</label>
+            <select class="select" id="equipDefaultStatus">
+              <option value="تعمل">تعمل</option>
+              <option value="متوقفة">متوقفة</option>
+              <option value="صيانة">صيانة</option>
+            </select>
+            <p class="helper-hint">يمكنك تغيير الحالة التشغيلية لكل معدة بشكل مستقل داخل قائمة المعدات المحددة بالأسفل.</p>
+          </div>
+          <div class="filter-row">
+            <div>
+              <label class="label" for="equipTypeFilter">اختر نوع المعدة (Type)</label>
+              <select class="select" id="equipTypeFilter">
+                <option value="">-- اختر نوع المعدة --</option>
+              </select>
+            </div>
+            <div>
+              <label class="label" for="equipSearchInput">بحث بالاسم أو الرقم / اللوحة</label>
+              <input class="input" type="text" id="equipSearchInput" placeholder="اكتب اسم المعدة أو رقمها..." />
+            </div>
+          </div>
+
+          <div class="field" style="margin-bottom: 0;">
+            <label class="label" for="equipSelect">اختر المعدة</label>
+            <div class="select-action-row">
+              <select class="select" id="equipSelect" disabled>
+                <option value="">-- اختر نوع المعدة أولاً --</option>
+              </select>
+              <button type="button" class="btn-add-item" id="addAllEquipBtn" disabled>إضافة الكل</button>
+            </div>
+            <p class="helper-hint">اختر نوع المعدة ثم اختر المعدة من القائمة لإضافتها إلى القائمة المحددة.</p>
+          </div>
+        </div>
+
+        <div class="selected-box">
+          <div class="selected-box-header">
+            <span>المعدات المحددة قبل الاعتماد (<span id="equipSelectedCount">0</span>)</span>
+            <button type="button" class="btn-small" id="clearEquipSelectedBtn">مسح الكل</button>
+          </div>
+          <div class="chips-wrap" id="equipSelectedChips">
+            <p class="empty-selected">لم يتم اختيار أي معدة بعد.</p>
+          </div>
+        </div>
+
+        <label class="label" for="equipNotesInput">ملاحظات (اختياري):</label>
+        <textarea
+          class="textarea"
+          id="equipNotesInput"
+          placeholder="اكتب أي ملاحظات عن حالة المعدات أو السائق أو موقع العمل..."
+        ></textarea>
+
+        <div class="camera-box">
+          <span class="label">صورة المعدة في الموقع (التقاط مباشر أو إرفاق ملف):</span>
+          <div class="camera-actions">
+            <button type="button" class="btn-small" id="equipOpenCameraBtn">فتح الكاميرا المباشرة</button>
+            <button type="button" class="btn-small" id="equipCapturePhotoBtn" disabled>التقاط صورة الآن</button>
+            <button type="button" class="btn-small" id="equipSwitchCameraBtn" disabled>تبديل الكاميرا</button>
+            <button type="button" class="btn-secondary" id="equipStopCameraBtn" disabled>إيقاف الكاميرا</button>
+          </div>
+
+          <video id="equipCameraStream" class="camera-stream" autoplay playsinline muted></video>
+          <canvas id="equipCaptureCanvas" class="hidden"></canvas>
+
+          <input class="file-input" type="file" id="equipPhotoInput" accept="image/*" capture="environment" />
+          <img id="equipPreviewImg" class="preview-img" alt="معاينة صورة المعدة" />
+        </div>
+
+        <button type="submit" class="btn" id="equipSubmitBtn">اعتماد وإرسال تحضير المعدات</button>
       </form>
     </div>
 
@@ -420,53 +666,26 @@
 
     let sessionAuth = { username: '', password: '', fullName: '' };
     let staffByRoleData = {};
+    let equipmentByTypeData = {};
     let projectsListData = [];
-    let selectedMap = new Map();
+
+    let staffSelectedMap = new Map();
+    let equipSelectedMap = new Map();
+
     let currentCoords = { latitude: null, longitude: null, accuracy: null, verified: false };
-    let capturedBase64Image = null;
+    let staffCapturedImage = null;
+    let equipCapturedImage = null;
     let clockTimer = null;
+
+    let activeCameraContext = null; // 'staff' | 'equip'
     let cameraStreamObj = null;
     let facingMode = 'environment';
 
+    // عناصر الشاشات
     const loginSection = document.getElementById('loginSection');
-    const appSection = document.getElementById('appSection');
-    const loginForm = document.getElementById('loginForm');
-    const loginBtn = document.getElementById('loginBtn');
-    const logoutBtn = document.getElementById('logoutBtn');
-    const currentUserLabel = document.getElementById('currentUserLabel');
-
-    const liveDateEl = document.getElementById('liveDate');
-    const liveTimeEl = document.getElementById('liveTime');
-    const locationStatusEl = document.getElementById('locationStatus');
-    const refreshLocBtn = document.getElementById('refreshLocBtn');
-
-    const locationRadios = document.querySelectorAll('input[name="locationType"]');
-    const projectSection = document.getElementById('projectSection');
-    const projectSelect = document.getElementById('projectSelect');
-    const licenseArea = document.getElementById('licenseArea');
-    const licenseSelect = document.getElementById('licenseSelect');
-    const licenseDetails = document.getElementById('licenseDetails');
-
-    const roleFilter = document.getElementById('roleFilter');
-    const searchInput = document.getElementById('searchInput');
-    const staffSelect = document.getElementById('staffSelect');
-    const addAllRoleBtn = document.getElementById('addAllRoleBtn');
-    const selectedCountEl = document.getElementById('selectedCount');
-    const selectedChipsEl = document.getElementById('selectedChips');
-    const clearSelectedBtn = document.getElementById('clearSelectedBtn');
-    const notesInput = document.getElementById('notesInput');
-
-    const openCameraBtn = document.getElementById('openCameraBtn');
-    const capturePhotoBtn = document.getElementById('capturePhotoBtn');
-    const switchCameraBtn = document.getElementById('switchCameraBtn');
-    const stopCameraBtn = document.getElementById('stopCameraBtn');
-    const videoEl = document.getElementById('cameraStream');
-    const canvasEl = document.getElementById('captureCanvas');
-    const photoInput = document.getElementById('photoInput');
-    const previewImg = document.getElementById('previewImg');
-
-    const reportForm = document.getElementById('reportForm');
-    const submitBtn = document.getElementById('submitBtn');
+    const dashboardSection = document.getElementById('dashboardSection');
+    const staffSection = document.getElementById('staffSection');
+    const equipSection = document.getElementById('equipSection');
     const statusBox = document.getElementById('statusBox');
 
     function showStatus(type, message) {
@@ -479,28 +698,85 @@
       statusBox.textContent = '';
     }
 
+    function stopLiveCamera() {
+      if (cameraStreamObj) {
+        cameraStreamObj.getTracks().forEach((track) => track.stop());
+        cameraStreamObj = null;
+      }
+      ['staff', 'equip'].forEach((prefix) => {
+        const v = document.getElementById(`${prefix}CameraStream`);
+        v.srcObject = null;
+        v.style.display = 'none';
+        document.getElementById(`${prefix}CapturePhotoBtn`).disabled = true;
+        document.getElementById(`${prefix}SwitchCameraBtn`).disabled = true;
+        document.getElementById(`${prefix}StopCameraBtn`).disabled = true;
+      });
+      activeCameraContext = null;
+    }
+
+    function switchView(viewName) {
+      stopLiveCamera();
+      hideStatus();
+      loginSection.classList.add('hidden');
+      dashboardSection.classList.add('hidden');
+      staffSection.classList.add('hidden');
+      equipSection.classList.add('hidden');
+
+      if (viewName === 'login') loginSection.classList.remove('hidden');
+      if (viewName === 'dashboard') dashboardSection.classList.remove('hidden');
+      if (viewName === 'staff') {
+        staffSection.classList.remove('hidden');
+        verifyLocation();
+      }
+      if (viewName === 'equip') {
+        equipSection.classList.remove('hidden');
+        setDefaultManualDateTime();
+        verifyLocation();
+      }
+    }
+
     function updateClock() {
       const now = new Date();
-      liveDateEl.textContent = now.toLocaleDateString('en-SA', {
-        year: 'numeric', month: '2-digit', day: '2-digit'
-      });
-      liveTimeEl.textContent = now.toLocaleTimeString('en-SA', {
-        hour: '2-digit', minute: '2-digit', second: '2-digit'
-      });
+      const d = now.toLocaleDateString('en-CA'); // YYYY-MM-DD
+      const t = now.toLocaleTimeString('en-GB', { hour12: false }); // HH:MM:SS
+      document.getElementById('staffLiveDate').textContent = d;
+      document.getElementById('staffLiveTime').textContent = t;
+      document.getElementById('equipLiveDate').textContent = d;
+      document.getElementById('equipLiveTime').textContent = t;
+    }
+
+    function setDefaultManualDateTime() {
+      const now = new Date();
+      const yyyy = now.getFullYear();
+      const mm = String(now.getMonth() + 1).padStart(2, '0');
+      const dd = String(now.getDate()).padStart(2, '0');
+      const hh = String(now.getHours()).padStart(2, '0');
+      const min = String(now.getMinutes()).padStart(2, '0');
+      const dateInput = document.getElementById('equipManualDate');
+      const timeInput = document.getElementById('equipManualTime');
+      if (!dateInput.value) dateInput.value = `${yyyy}-${mm}-${dd}`;
+      if (!timeInput.value) timeInput.value = `${hh}:${min}`;
     }
 
     function verifyLocation() {
+      const staffLocEl = document.getElementById('staffLocationStatus');
+      const equipLocEl = document.getElementById('equipLocationStatus');
+
       return new Promise((resolve) => {
         if (!navigator.geolocation) {
           currentCoords = { latitude: null, longitude: null, accuracy: null, verified: false };
-          locationStatusEl.className = 'badge-warn';
-          locationStatusEl.textContent = 'المتصفح لا يدعم تحديد الموقع.';
+          [staffLocEl, equipLocEl].forEach((el) => {
+            el.className = 'badge-warn';
+            el.textContent = 'المتصفح لا يدعم تحديد الموقع.';
+          });
           resolve(false);
           return;
         }
 
-        locationStatusEl.className = 'badge-warn';
-        locationStatusEl.textContent = 'جاري التحقق من إحداثيات الموقع...';
+        [staffLocEl, equipLocEl].forEach((el) => {
+          el.className = 'badge-warn';
+          el.textContent = 'جاري التحقق من إحداثيات الموقع...';
+        });
 
         navigator.geolocation.getCurrentPosition(
           (pos) => {
@@ -510,15 +786,20 @@
               accuracy: Math.round(pos.coords.accuracy),
               verified: true
             };
-            locationStatusEl.className = 'badge-ok';
-            locationStatusEl.textContent =
-              `تم التحقق (${currentCoords.latitude.toFixed(6)}, ${currentCoords.longitude.toFixed(6)}) ±${currentCoords.accuracy}م`;
+            const text = `تم التحقق (${currentCoords.latitude.toFixed(6)}, ${currentCoords.longitude.toFixed(6)}) ±${currentCoords.accuracy}م`;
+            [staffLocEl, equipLocEl].forEach((el) => {
+              el.className = 'badge-ok';
+              el.textContent = text;
+            });
             resolve(true);
           },
           () => {
             currentCoords = { latitude: null, longitude: null, accuracy: null, verified: false };
-            locationStatusEl.className = 'badge-warn';
-            locationStatusEl.textContent = 'لم يتم التحقق من الموقع (فعّل GPS وامنح الإذن ثم أعد المحاولة).';
+            const text = 'لم يتم التحقق من الموقع (فعّل GPS وامنح الإذن ثم أعد المحاولة).';
+            [staffLocEl, equipLocEl].forEach((el) => {
+              el.className = 'badge-warn';
+              el.textContent = text;
+            });
             resolve(false);
           },
           { enableHighAccuracy: true, timeout: 12000, maximumAge: 0 }
@@ -526,108 +807,156 @@
       });
     }
 
-    refreshLocBtn.addEventListener('click', () => {
-      verifyLocation();
-    });
+    document.getElementById('staffRefreshLocBtn').addEventListener('click', verifyLocation);
+    document.getElementById('equipRefreshLocBtn').addEventListener('click', verifyLocation);
 
-    function populateProjectsSelect(projects) {
-      projectSelect.innerHTML = '<option value="">-- اختر المشروع --</option>';
-      (projects || []).forEach((proj) => {
-        const opt = document.createElement('option');
-        opt.value = proj.projectCode;
-        opt.textContent = proj.schemeNumber
-          ? `${proj.projectCode} (Scheme: ${proj.schemeNumber})`
-          : proj.projectCode;
-        projectSelect.appendChild(opt);
-      });
-      handleProjectChange();
-    }
+    // التنقل بين الشاشات
+    document.getElementById('openStaffCardBtn').addEventListener('click', () => switchView('staff'));
+    document.getElementById('openEquipCardBtn').addEventListener('click', () => switchView('equip'));
+    document.getElementById('backFromStaffBtn').addEventListener('click', () => switchView('dashboard'));
+    document.getElementById('backFromEquipBtn').addEventListener('click', () => switchView('dashboard'));
 
-    function handleProjectChange() {
-      const selectedProjCode = projectSelect.value;
-      licenseSelect.innerHTML = '<option value="">-- اختر الرخصة --</option>';
-      licenseDetails.className = 'license-details';
-      licenseDetails.textContent = '';
+    // منطق المشاريع والرخص مشترك للشاشات
+    function setupProjectLicenseSelectors(prefix) {
+      const projSelect = document.getElementById(`${prefix}ProjectSelect`);
+      const licArea = document.getElementById(`${prefix}LicenseArea`);
+      const licSelect = document.getElementById(`${prefix}LicenseSelect`);
+      const licDetails = document.getElementById(`${prefix}LicenseDetails`);
 
-      if (!selectedProjCode) {
-        licenseArea.style.display = 'none';
-        licenseSelect.required = false;
-        return;
-      }
-
-      const proj = projectsListData.find((p) => p.projectCode === selectedProjCode);
-      const licenses = (proj && Array.isArray(proj.licenses)) ? proj.licenses : [];
-
-      if (licenses.length > 0) {
-        licenseArea.style.display = 'block';
-        licenseSelect.required = true;
-
-        licenses.forEach((lic) => {
-          const opt = document.createElement('option');
-          opt.value = lic.licenseCode;
-          opt.textContent = lic.licenseNumber
-            ? `${lic.licenseCode} — رقم الرخصة: ${lic.licenseNumber}`
-            : lic.licenseCode;
-          licenseSelect.appendChild(opt);
-        });
-
-        if (licenses.length === 1) {
-          licenseSelect.value = licenses[0].licenseCode;
+      function updateDetails() {
+        const selectedProjCode = projSelect.value;
+        const selectedLicCode = licSelect.value;
+        if (!selectedProjCode || !selectedLicCode) {
+          licDetails.className = 'license-details';
+          licDetails.textContent = '';
+          return;
         }
-        updateLicenseDetails();
-      } else {
-        licenseArea.style.display = 'none';
-        licenseSelect.required = false;
-        licenseDetails.className = 'license-details license-none';
-        licenseDetails.textContent = 'لا توجد رخصة فعّالة مسجلة لهذا المشروع.';
+        const proj = projectsListData.find((p) => p.projectCode === selectedProjCode);
+        const lic = proj && proj.licenses ? proj.licenses.find((l) => l.licenseCode === selectedLicCode) : null;
+        if (lic) {
+          licDetails.className = 'license-details license-found';
+          licDetails.textContent = lic.licenseNumber
+            ? `الرخصة المحددة: ${lic.licenseCode} | رقم الرخصة (LicenseNumber): ${lic.licenseNumber}`
+            : `الرخصة المحددة: ${lic.licenseCode}`;
+        }
       }
+
+      function onProjectChange() {
+        const selectedProjCode = projSelect.value;
+        licSelect.innerHTML = '<option value="">-- اختر الرخصة --</option>';
+        licDetails.className = 'license-details';
+        licDetails.textContent = '';
+
+        if (!selectedProjCode) {
+          licArea.style.display = 'none';
+          licSelect.required = false;
+          return;
+        }
+
+        const proj = projectsListData.find((p) => p.projectCode === selectedProjCode);
+        const licenses = (proj && Array.isArray(proj.licenses)) ? proj.licenses : [];
+
+        if (licenses.length > 0) {
+          licArea.style.display = 'block';
+          licSelect.required = true;
+          licenses.forEach((lic) => {
+            const opt = document.createElement('option');
+            opt.value = lic.licenseCode;
+            opt.textContent = lic.licenseNumber
+              ? `${lic.licenseCode} — رقم الرخصة: ${lic.licenseNumber}`
+              : lic.licenseCode;
+            licSelect.appendChild(opt);
+          });
+          if (licenses.length === 1) {
+            licSelect.value = licenses[0].licenseCode;
+          }
+          updateDetails();
+        } else {
+          licArea.style.display = 'none';
+          licSelect.required = false;
+          licDetails.className = 'license-details license-none';
+          licDetails.textContent = 'لا توجد رخصة فعّالة مسجلة لهذا المشروع.';
+        }
+      }
+
+      projSelect.addEventListener('change', onProjectChange);
+      licSelect.addEventListener('change', updateDetails);
+
+      return {
+        populate(projects) {
+          projSelect.innerHTML = '<option value="">-- اختر المشروع --</option>';
+          (projects || []).forEach((proj) => {
+            const opt = document.createElement('option');
+            opt.value = proj.projectCode;
+            opt.textContent = proj.schemeNumber
+              ? `${proj.projectCode} (Scheme: ${proj.schemeNumber})`
+              : proj.projectCode;
+            projSelect.appendChild(opt);
+          });
+          onProjectChange();
+        },
+        reset() {
+          projSelect.value = '';
+          licSelect.value = '';
+          licSelect.required = false;
+          licArea.style.display = 'none';
+          licDetails.className = 'license-details';
+          licDetails.textContent = '';
+        }
+      };
     }
 
-    function updateLicenseDetails() {
-      const selectedProjCode = projectSelect.value;
-      const selectedLicCode = licenseSelect.value;
-      if (!selectedProjCode || !selectedLicCode) {
-        licenseDetails.className = 'license-details';
-        licenseDetails.textContent = '';
-        return;
-      }
+    const staffProjCtrl = setupProjectLicenseSelectors('staff');
+    const equipProjCtrl = setupProjectLicenseSelectors('equip');
 
-      const proj = projectsListData.find((p) => p.projectCode === selectedProjCode);
-      const lic = proj && proj.licenses ? proj.licenses.find((l) => l.licenseCode === selectedLicCode) : null;
-
-      if (lic) {
-        licenseDetails.className = 'license-details license-found';
-        licenseDetails.textContent = lic.licenseNumber
-          ? `الرخصة المحددة: ${lic.licenseCode} | رقم الرخصة (LicenseNumber): ${lic.licenseNumber}`
-          : `الرخصة المحددة: ${lic.licenseCode}`;
-      }
-    }
-
-    function handleLocationTypeChange() {
+    // التحكم في مكان التواجد للموظفين
+    const staffProjectSection = document.getElementById('staffProjectSection');
+    const staffProjectSelect = document.getElementById('staffProjectSelect');
+    function handleStaffLocationTypeChange() {
       const checkedRadio = document.querySelector('input[name="locationType"]:checked');
       const val = checkedRadio ? checkedRadio.value : '';
       if (val === 'موقع العمل') {
-        projectSection.classList.remove('hidden');
-        projectSelect.required = true;
-        handleProjectChange();
+        staffProjectSection.classList.remove('hidden');
+        staffProjectSelect.required = true;
       } else {
-        projectSection.classList.add('hidden');
-        projectSelect.required = false;
-        projectSelect.value = '';
-        licenseSelect.required = false;
-        licenseSelect.value = '';
-        licenseArea.style.display = 'none';
-        licenseDetails.className = 'license-details';
-        licenseDetails.textContent = '';
+        staffProjectSection.classList.add('hidden');
+        staffProjectSelect.required = false;
+        staffProjCtrl.reset();
       }
     }
-
-    locationRadios.forEach((radio) => {
-      radio.addEventListener('change', handleLocationTypeChange);
+    document.querySelectorAll('input[name="locationType"]').forEach((r) => {
+      r.addEventListener('change', handleStaffLocationTypeChange);
     });
 
-    projectSelect.addEventListener('change', handleProjectChange);
-    licenseSelect.addEventListener('change', updateLicenseDetails);
+    // التحكم في الوقت اليدوي للمعدات
+    const manualTimeFields = document.getElementById('manualTimeFields');
+    const equipManualDate = document.getElementById('equipManualDate');
+    const equipManualTime = document.getElementById('equipManualTime');
+    function handleEquipTimeModeChange() {
+      const modeRadio = document.querySelector('input[name="equipTimeMode"]:checked');
+      const mode = modeRadio ? modeRadio.value : 'auto';
+      if (mode === 'manual') {
+        manualTimeFields.classList.remove('hidden');
+        equipManualDate.required = true;
+        equipManualTime.required = true;
+        setDefaultManualDateTime();
+      } else {
+        manualTimeFields.classList.add('hidden');
+        equipManualDate.required = false;
+        equipManualTime.required = false;
+      }
+    }
+    document.querySelectorAll('input[name="equipTimeMode"]').forEach((r) => {
+      r.addEventListener('change', handleEquipTimeModeChange);
+    });
+
+    // ========== منطق اختيار الموظفين ==========
+    const roleFilter = document.getElementById('roleFilter');
+    const staffSearchInput = document.getElementById('staffSearchInput');
+    const staffSelect = document.getElementById('staffSelect');
+    const addAllRoleBtn = document.getElementById('addAllRoleBtn');
+    const staffSelectedCountEl = document.getElementById('staffSelectedCount');
+    const staffSelectedChipsEl = document.getElementById('staffSelectedChips');
 
     function populateRoleFilter(grouped) {
       roleFilter.innerHTML = '<option value="">-- اختر المهنة --</option>';
@@ -646,80 +975,60 @@
       });
     }
 
-    function getFilteredStaffForDropdown() {
+    function getFilteredStaff() {
       const chosenRole = roleFilter.value;
-      const keyword = searchInput.value.trim().toLowerCase();
+      const keyword = staffSearchInput.value.trim().toLowerCase();
+      if (!chosenRole && !keyword) return [];
 
-      if (!chosenRole && !keyword) {
-        return [];
-      }
-
-      const roles = Object.keys(staffByRoleData);
       const results = [];
-
-      roles.forEach((role) => {
+      Object.keys(staffByRoleData).forEach((role) => {
         if (chosenRole && chosenRole !== 'ALL' && chosenRole !== role) return;
         (staffByRoleData[role] || []).forEach((person) => {
-          const matchesKeyword = !keyword ||
+          const match = !keyword ||
             person.name.toLowerCase().includes(keyword) ||
             person.idNumber.toLowerCase().includes(keyword);
-          if (matchesKeyword) {
-            results.push({
-              idNumber: person.idNumber,
-              name: person.name,
-              role: role
-            });
+          if (match) {
+            results.push({ idNumber: person.idNumber, name: person.name, role: role });
           }
         });
       });
-
       return results;
     }
 
     function updateStaffDropdown() {
       const chosenRole = roleFilter.value;
-      const keyword = searchInput.value.trim();
-
+      const keyword = staffSearchInput.value.trim();
       staffSelect.innerHTML = '';
 
       if (!chosenRole && !keyword) {
         staffSelect.disabled = true;
         addAllRoleBtn.disabled = true;
-        const opt = document.createElement('option');
-        opt.value = '';
-        opt.textContent = '-- اختر المهنة أولاً --';
-        staffSelect.appendChild(opt);
+        staffSelect.innerHTML = '<option value="">-- اختر المهنة أولاً --</option>';
         return;
       }
 
-      const list = getFilteredStaffForDropdown();
+      const list = getFilteredStaff();
       if (list.length === 0) {
         staffSelect.disabled = true;
         addAllRoleBtn.disabled = true;
-        const opt = document.createElement('option');
-        opt.value = '';
-        opt.textContent = 'لا يوجد موظفون مطابقون';
-        staffSelect.appendChild(opt);
+        staffSelect.innerHTML = '<option value="">لا يوجد موظفون مطابقون</option>';
         return;
       }
 
       staffSelect.disabled = false;
       addAllRoleBtn.disabled = false;
-
-      const defaultOpt = document.createElement('option');
-      defaultOpt.value = '';
-      defaultOpt.textContent = `-- اختر موظفاً لإضافته (${list.length}) --`;
-      staffSelect.appendChild(defaultOpt);
+      const defOpt = document.createElement('option');
+      defOpt.value = '';
+      defOpt.textContent = `-- اختر موظفاً لإضافته (${list.length}) --`;
+      staffSelect.appendChild(defOpt);
 
       list.forEach((person) => {
         const key = `${person.role}|||${person.idNumber}|||${person.name}`;
-        const alreadySelected = selectedMap.has(key);
         const opt = document.createElement('option');
         opt.value = key;
         const idPart = person.idNumber ? ` (${person.idNumber})` : '';
         const rolePart = (chosenRole === 'ALL' || !chosenRole) ? ` - ${person.role}` : '';
-        const checkMark = alreadySelected ? '✓ ' : '';
-        opt.textContent = `${checkMark}${person.name}${idPart}${rolePart}`;
+        opt.textContent = `${staffSelectedMap.has(key) ? '✓ ' : ''}${person.name}${idPart}${rolePart}`;
         staffSelect.appendChild(opt);
       });
     }
@@ -728,144 +1037,251 @@
       const key = staffSelect.value;
       if (!key) return;
       const [role, idNumber, name] = key.split('|||');
-      if (!selectedMap.has(key)) {
-        selectedMap.set(key, { idNumber: idNumber || '', name: name || '', role: role || '' });
-        renderSelectedSummary();
+      if (!staffSelectedMap.has(key)) {
+        staffSelectedMap.set(key, { idNumber: idNumber || '', name: name || '', role: role || '' });
+        renderStaffSelectedChips();
       }
       updateStaffDropdown();
       staffSelect.value = '';
     });
 
     addAllRoleBtn.addEventListener('click', () => {
-      const list = getFilteredStaffForDropdown();
-      if (list.length === 0) return;
-      list.forEach((person) => {
+      getFilteredStaff().forEach((person) => {
         const key = `${person.role}|||${person.idNumber}|||${person.name}`;
-        if (!selectedMap.has(key)) {
-          selectedMap.set(key, { idNumber: person.idNumber, name: person.name, role: person.role });
+        if (!staffSelectedMap.has(key)) {
+          staffSelectedMap.set(key, { idNumber: person.idNumber, name: person.name, role: person.role });
         }
       });
-      renderSelectedSummary();
+      renderStaffSelectedChips();
       updateStaffDropdown();
     });
 
-    function renderSelectedSummary() {
-      const items = Array.from(selectedMap.values());
-      selectedCountEl.textContent = String(items.length);
-
+    function renderStaffSelectedChips() {
+      const items = Array.from(staffSelectedMap.values());
+      staffSelectedCountEl.textContent = String(items.length);
       if (items.length === 0) {
-        selectedChipsEl.innerHTML = '<p class="empty-selected">لم يتم اختيار أي موظف بعد.</p>';
+        staffSelectedChipsEl.innerHTML = '<p class="empty-selected">لم يتم اختيار أي موظف بعد.</p>';
         return;
       }
-
-      selectedChipsEl.innerHTML = '';
+      staffSelectedChipsEl.innerHTML = '';
       items.forEach((item) => {
         const key = `${item.role}|||${item.idNumber}|||${item.name}`;
         const chip = document.createElement('span');
         chip.className = 'chip';
-
-        const textSpan = document.createElement('span');
         const idText = item.idNumber ? ` [${item.idNumber}]` : '';
-        textSpan.textContent = `${item.name}${idText} — ${item.role}`;
-
-        const removeBtn = document.createElement('button');
-        removeBtn.type = 'button';
-        removeBtn.className = 'chip-remove';
-        removeBtn.title = 'إزالة';
-        removeBtn.textContent = '×';
-        removeBtn.addEventListener('click', () => {
-          selectedMap.delete(key);
-          renderSelectedSummary();
+        const span = document.createElement('span');
+        span.textContent = `${item.name}${idText} — ${item.role}`;
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'chip-remove';
+        btn.textContent = '×';
+        btn.addEventListener('click', () => {
+          staffSelectedMap.delete(key);
+          renderStaffSelectedChips();
           updateStaffDropdown();
         });
-
-        chip.appendChild(textSpan);
-        chip.appendChild(removeBtn);
-        selectedChipsEl.appendChild(chip);
+        chip.appendChild(span);
+        chip.appendChild(btn);
+        staffSelectedChipsEl.appendChild(chip);
       });
     }
 
-    clearSelectedBtn.addEventListener('click', () => {
-      selectedMap.clear();
-      renderSelectedSummary();
+    document.getElementById('clearStaffSelectedBtn').addEventListener('click', () => {
+      staffSelectedMap.clear();
+      renderStaffSelectedChips();
       updateStaffDropdown();
     });
 
-    async function startLiveCamera() {
-      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        showStatus('error', 'الكاميرا المباشرة غير مدعومة في هذا المتصفح؛ يمكنك استخدام زر اختيار الصورة لفتح الكاميرا.');
-        photoInput.click();
+    roleFilter.addEventListener('change', updateStaffDropdown);
+    staffSearchInput.addEventListener('input', updateStaffDropdown);
+
+    // ========== منطق اختيار المعدات ==========
+    const equipTypeFilter = document.getElementById('equipTypeFilter');
+    const equipSearchInput = document.getElementById('equipSearchInput');
+    const equipSelect = document.getElementById('equipSelect');
+    const addAllEquipBtn = document.getElementById('addAllEquipBtn');
+    const equipSelectedCountEl = document.getElementById('equipSelectedCount');
+    const equipSelectedChipsEl = document.getElementById('equipSelectedChips');
+
+    function populateEquipTypeFilter(grouped) {
+      equipTypeFilter.innerHTML = '<option value="">-- اختر نوع المعدة --</option>';
+      const types = Object.keys(grouped || {});
+      if (types.length > 0) {
+        const allOpt = document.createElement('option');
+        allOpt.value = 'ALL';
+        allOpt.textContent = 'جميع الأنواع';
+        equipTypeFilter.appendChild(allOpt);
+      }
+      types.forEach((type) => {
+        const opt = document.createElement('option');
+        opt.value = type;
+        opt.textContent = type;
+        equipTypeFilter.appendChild(opt);
+      });
+    }
+
+    function getFilteredEquipments() {
+      const chosenType = equipTypeFilter.value;
+      const keyword = equipSearchInput.value.trim().toLowerCase();
+      if (!chosenType && !keyword) return [];
+
+      const results = [];
+      Object.keys(equipmentByTypeData).forEach((type) => {
+        if (chosenType && chosenType !== 'ALL' && chosenType !== type) return;
+        (equipmentByTypeData[type] || []).forEach((eq) => {
+          const match = !keyword ||
+            eq.name.toLowerCase().includes(keyword) ||
+            eq.equipmentId.toLowerCase().includes(keyword) ||
+            (eq.plateOrSerial || '').toLowerCase().includes(keyword);
+          if (match) {
+            results.push({
+              equipmentId: eq.equipmentId,
+              name: eq.name,
+              type: type,
+              plateOrSerial: eq.plateOrSerial || ''
+            });
+          }
+        });
+      });
+      return results;
+    }
+
+    function updateEquipDropdown() {
+      const chosenType = equipTypeFilter.value;
+      const keyword = equipSearchInput.value.trim();
+      equipSelect.innerHTML = '';
+
+      if (!chosenType && !keyword) {
+        equipSelect.disabled = true;
+        addAllEquipBtn.disabled = true;
+        equipSelect.innerHTML = '<option value="">-- اختر نوع المعدة أولاً --</option>';
         return;
       }
 
-      stopLiveCamera();
-      try {
-        cameraStreamObj = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: facingMode },
-          audio: false
+      const list = getFilteredEquipments();
+      if (list.length === 0) {
+        equipSelect.disabled = true;
+        addAllEquipBtn.disabled = true;
+        equipSelect.innerHTML = '<option value="">لا توجد معدات مطابقة</option>';
+        return;
+      }
+
+      equipSelect.disabled = false;
+      addAllEquipBtn.disabled = false;
+      const defOpt = document.createElement('option');
+      defOpt.value = '';
+      defOpt.textContent = `-- اختر معدة لإضافتها (${list.length}) --`;
+      equipSelect.appendChild(defOpt);
+
+      list.forEach((eq) => {
+        const key = `${eq.type}|||${eq.equipmentId}|||${eq.name}|||${eq.plateOrSerial}`;
+        const opt = document.createElement('option');
+        opt.value = key;
+        const idPart = eq.equipmentId ? ` (${eq.equipmentId})` : '';
+        const platePart = eq.plateOrSerial ? ` [${eq.plateOrSerial}]` : '';
+        const typePart = (chosenType === 'ALL' || !chosenType) ? ` - ${eq.type}` : '';
+        opt.textContent = `${equipSelectedMap.has(key) ? '✓ ' : ''}${eq.name}${idPart}${platePart}${typePart}`;
+        equipSelect.appendChild(opt);
+      });
+    }
+
+    const equipDefaultStatusEl = document.getElementById('equipDefaultStatus');
+
+    function getDefaultEquipStatus() {
+      return (equipDefaultStatusEl && equipDefaultStatusEl.value) ? equipDefaultStatusEl.value : 'تعمل';
+    }
+
+    equipSelect.addEventListener('change', () => {
+      const key = equipSelect.value;
+      if (!key) return;
+      const [type, equipmentId, name, plateOrSerial] = key.split('|||');
+      if (!equipSelectedMap.has(key)) {
+        equipSelectedMap.set(key, {
+          equipmentId: equipmentId || '',
+          name: name || '',
+          type: type || '',
+          plateOrSerial: plateOrSerial || '',
+          status: getDefaultEquipStatus()
         });
-        videoEl.srcObject = cameraStreamObj;
-        videoEl.style.display = 'block';
-        capturePhotoBtn.disabled = false;
-        switchCameraBtn.disabled = false;
-        stopCameraBtn.disabled = false;
-        hideStatus();
-      } catch (err) {
-        console.error(err);
-        showStatus('error', 'تعذر فتح الكاميرا المباشرة. تحقق من صلاحية الكاميرا أو استخدم حقل الصورة بالأسفل.');
+        renderEquipSelectedChips();
       }
-    }
-
-    function stopLiveCamera() {
-      if (cameraStreamObj) {
-        cameraStreamObj.getTracks().forEach((track) => track.stop());
-        cameraStreamObj = null;
-      }
-      videoEl.srcObject = null;
-      videoEl.style.display = 'none';
-      capturePhotoBtn.disabled = true;
-      switchCameraBtn.disabled = true;
-      stopCameraBtn.disabled = true;
-    }
-
-    openCameraBtn.addEventListener('click', startLiveCamera);
-
-    switchCameraBtn.addEventListener('click', () => {
-      facingMode = facingMode === 'environment' ? 'user' : 'environment';
-      startLiveCamera();
+      updateEquipDropdown();
+      equipSelect.value = '';
     });
 
-    stopCameraBtn.addEventListener('click', stopLiveCamera);
-
-    capturePhotoBtn.addEventListener('click', () => {
-      if (!cameraStreamObj || !videoEl.videoWidth) return;
-
-      const maxWidth = 1280;
-      let width = videoEl.videoWidth;
-      let height = videoEl.videoHeight;
-      if (width > maxWidth) {
-        height = Math.round((height * maxWidth) / width);
-        width = maxWidth;
-      }
-
-      canvasEl.width = width;
-      canvasEl.height = height;
-      const ctx = canvasEl.getContext('2d');
-      ctx.drawImage(videoEl, 0, 0, width, height);
-
-      const dataUrl = canvasEl.toDataURL('image/jpeg', 0.78);
-      capturedBase64Image = {
-        base64: dataUrl.split(',')[1],
-        mimeType: 'image/jpeg',
-        fileName: `camera_${Date.now()}.jpg`
-      };
-
-      photoInput.value = '';
-      previewImg.src = dataUrl;
-      previewImg.style.display = 'block';
-      stopLiveCamera();
+    addAllEquipBtn.addEventListener('click', () => {
+      const defStatus = getDefaultEquipStatus();
+      getFilteredEquipments().forEach((eq) => {
+        const key = `${eq.type}|||${eq.equipmentId}|||${eq.name}|||${eq.plateOrSerial}`;
+        if (!equipSelectedMap.has(key)) {
+          equipSelectedMap.set(key, { ...eq, status: defStatus });
+        }
+      });
+      renderEquipSelectedChips();
+      updateEquipDropdown();
     });
 
+    function renderEquipSelectedChips() {
+      const items = Array.from(equipSelectedMap.values());
+      equipSelectedCountEl.textContent = String(items.length);
+      if (items.length === 0) {
+        equipSelectedChipsEl.innerHTML = '<p class="empty-selected">لم يتم اختيار أي معدة بعد.</p>';
+        return;
+      }
+      equipSelectedChipsEl.innerHTML = '';
+      items.forEach((item) => {
+        const key = `${item.type}|||${item.equipmentId}|||${item.name}|||${item.plateOrSerial}`;
+        const chip = document.createElement('span');
+        chip.className = 'chip';
+        const idText = item.equipmentId ? ` [${item.equipmentId}]` : '';
+        const plateText = item.plateOrSerial ? ` (${item.plateOrSerial})` : '';
+        const span = document.createElement('span');
+        span.textContent = `${item.name}${idText}${plateText} — ${item.type}`;
+
+        const statusSel = document.createElement('select');
+        statusSel.className = 'chip-status-select';
+        statusSel.setAttribute('aria-label', 'الحالة التشغيلية');
+        ['تعمل', 'متوقفة', 'صيانة'].forEach((st) => {
+          const opt = document.createElement('option');
+          opt.value = st;
+          opt.textContent = st;
+          if ((item.status || 'تعمل') === st) opt.selected = true;
+          statusSel.appendChild(opt);
+        });
+        statusSel.addEventListener('change', () => {
+          const current = equipSelectedMap.get(key);
+          if (current) {
+            current.status = statusSel.value;
+            equipSelectedMap.set(key, current);
+          }
+        });
+
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'chip-remove';
+        btn.textContent = '×';
+        btn.addEventListener('click', () => {
+          equipSelectedMap.delete(key);
+          renderEquipSelectedChips();
+          updateEquipDropdown();
+        });
+        chip.appendChild(span);
+        chip.appendChild(statusSel);
+        chip.appendChild(btn);
+        equipSelectedChipsEl.appendChild(chip);
+      });
+    }
+
+    document.getElementById('clearEquipSelectedBtn').addEventListener('click', () => {
+      equipSelectedMap.clear();
+      renderEquipSelectedChips();
+      updateEquipDropdown();
+    });
+
+    equipTypeFilter.addEventListener('change', updateEquipDropdown);
+    equipSearchInput.addEventListener('input', updateEquipDropdown);
+
+    // ========== الكاميرا وضغط الصور لكلتا الشاشتين ==========
     function compressFileToBase64(file, maxWidth = 1280, quality = 0.78) {
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
@@ -898,26 +1314,99 @@
       });
     }
 
-    photoInput.addEventListener('change', async () => {
-      const file = photoInput.files[0];
-      if (!file) return;
-      try {
-        stopLiveCamera();
-        capturedBase64Image = await compressFileToBase64(file);
-        previewImg.src = URL.createObjectURL(file);
-        previewImg.style.display = 'block';
-      } catch (err) {
-        console.error(err);
-        showStatus('error', 'تعذر قراءة الصورة المختارة.');
-      }
-    });
+    function setupCameraControls(prefix, onCaptured) {
+      const openBtn = document.getElementById(`${prefix}OpenCameraBtn`);
+      const capBtn = document.getElementById(`${prefix}CapturePhotoBtn`);
+      const swBtn = document.getElementById(`${prefix}SwitchCameraBtn`);
+      const stBtn = document.getElementById(`${prefix}StopCameraBtn`);
+      const videoEl = document.getElementById(`${prefix}CameraStream`);
+      const canvasEl = document.getElementById(`${prefix}CaptureCanvas`);
+      const fileInput = document.getElementById(`${prefix}PhotoInput`);
+      const previewImg = document.getElementById(`${prefix}PreviewImg`);
 
-    loginForm.addEventListener('submit', async (e) => {
+      async function startCam() {
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+          showStatus('error', 'الكاميرا المباشرة غير مدعومة في هذا المتصفح؛ استخدم زر إرفاق الصورة.');
+          fileInput.click();
+          return;
+        }
+        stopLiveCamera();
+        try {
+          cameraStreamObj = await navigator.mediaDevices.getUserMedia({
+            video: { facingMode: facingMode },
+            audio: false
+          });
+          activeCameraContext = prefix;
+          videoEl.srcObject = cameraStreamObj;
+          videoEl.style.display = 'block';
+          capBtn.disabled = false;
+          swBtn.disabled = false;
+          stBtn.disabled = false;
+          hideStatus();
+        } catch (err) {
+          console.error(err);
+          showStatus('error', 'تعذر فتح الكاميرا المباشرة. تحقق من الأذونات أو أرفق صورة من الجهاز.');
+        }
+      }
+
+      openBtn.addEventListener('click', startCam);
+      swBtn.addEventListener('click', () => {
+        facingMode = facingMode === 'environment' ? 'user' : 'environment';
+        startCam();
+      });
+      stBtn.addEventListener('click', stopLiveCamera);
+
+      capBtn.addEventListener('click', () => {
+        if (!cameraStreamObj || activeCameraContext !== prefix || !videoEl.videoWidth) return;
+        const maxWidth = 1280;
+        let width = videoEl.videoWidth;
+        let height = videoEl.videoHeight;
+        if (width > maxWidth) {
+          height = Math.round((height * maxWidth) / width);
+          width = maxWidth;
+        }
+        canvasEl.width = width;
+        canvasEl.height = height;
+        canvasEl.getContext('2d').drawImage(videoEl, 0, 0, width, height);
+        const dataUrl = canvasEl.toDataURL('image/jpeg', 0.78);
+        onCaptured({
+          base64: dataUrl.split(',')[1],
+          mimeType: 'image/jpeg',
+          fileName: `${prefix}_${Date.now()}.jpg`
+        });
+        fileInput.value = '';
+        previewImg.src = dataUrl;
+        previewImg.style.display = 'block';
+        stopLiveCamera();
+      });
+
+      fileInput.addEventListener('change', async () => {
+        const file = fileInput.files[0];
+        if (!file) return;
+        try {
+          stopLiveCamera();
+          const compressed = await compressFileToBase64(file);
+          onCaptured(compressed);
+          previewImg.src = URL.createObjectURL(file);
+          previewImg.style.display = 'block';
+        } catch (err) {
+          console.error(err);
+          showStatus('error', 'تعذر قراءة الصورة المختارة.');
+        }
+      });
+    }
+
+    setupCameraControls('staff', (img) => { staffCapturedImage = img; });
+    setupCameraControls('equip', (img) => { equipCapturedImage = img; });
+
+    // ========== تسجيل الدخول والخروج ==========
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       hideStatus();
 
       const username = document.getElementById('usernameInput').value.trim();
       const password = document.getElementById('passwordInput').value.trim();
+      const loginBtn = document.getElementById('loginBtn');
 
       loginBtn.disabled = true;
       showStatus('loading', 'جاري التحقق من بيانات الدخول وتحميل البيانات...');
@@ -938,24 +1427,34 @@
           fullName: data.user.fullName
         };
         staffByRoleData = data.staffByRole || {};
+        equipmentByTypeData = data.equipmentByType || {};
         projectsListData = data.projects || [];
-        selectedMap.clear();
 
-        currentUserLabel.textContent = `${sessionAuth.fullName}`;
-        populateProjectsSelect(projectsListData);
+        staffSelectedMap.clear();
+        equipSelectedMap.clear();
+
+        document.getElementById('dashUserLabel').textContent = sessionAuth.fullName;
+        document.getElementById('staffUserLabel').textContent = sessionAuth.fullName;
+        document.getElementById('equipUserLabel').textContent = sessionAuth.fullName;
+
+        staffProjCtrl.populate(projectsListData);
+        equipProjCtrl.populate(projectsListData);
+
         populateRoleFilter(staffByRoleData);
         updateStaffDropdown();
-        renderSelectedSummary();
-        handleLocationTypeChange();
+        renderStaffSelectedChips();
+        handleStaffLocationTypeChange();
 
-        loginSection.classList.add('hidden');
-        appSection.classList.remove('hidden');
-        hideStatus();
+        populateEquipTypeFilter(equipmentByTypeData);
+        updateEquipDropdown();
+        renderEquipSelectedChips();
+        handleEquipTimeModeChange();
 
         updateClock();
         if (clockTimer) clearInterval(clockTimer);
         clockTimer = setInterval(updateClock, 1000);
-        verifyLocation();
+
+        switchView('dashboard');
       } catch (err) {
         console.error(err);
         showStatus('error', 'تعذر الاتصال بالخادم. تحقق من رابط Apps Script وصلاحيات النشر.');
@@ -964,31 +1463,33 @@
       }
     });
 
-    logoutBtn.addEventListener('click', () => {
+    function handleLogout() {
       stopLiveCamera();
       sessionAuth = { username: '', password: '', fullName: '' };
       staffByRoleData = {};
+      equipmentByTypeData = {};
       projectsListData = [];
-      selectedMap.clear();
-      capturedBase64Image = null;
+      staffSelectedMap.clear();
+      equipSelectedMap.clear();
+      staffCapturedImage = null;
+      equipCapturedImage = null;
       if (clockTimer) clearInterval(clockTimer);
-      loginForm.reset();
-      reportForm.reset();
-      notesInput.value = '';
-      searchInput.value = '';
-      previewImg.style.display = 'none';
-      handleLocationTypeChange();
-      updateStaffDropdown();
-      renderSelectedSummary();
-      appSection.classList.add('hidden');
-      loginSection.classList.remove('hidden');
-      hideStatus();
-    });
 
-    roleFilter.addEventListener('change', updateStaffDropdown);
-    searchInput.addEventListener('input', updateStaffDropdown);
+      document.getElementById('loginForm').reset();
+      document.getElementById('staffForm').reset();
+      document.getElementById('equipForm').reset();
+      document.getElementById('staffPreviewImg').style.display = 'none';
+      document.getElementById('equipPreviewImg').style.display = 'none';
 
-    reportForm.addEventListener('submit', async (e) => {
+      switchView('login');
+    }
+
+    document.getElementById('dashLogoutBtn').addEventListener('click', handleLogout);
+    document.getElementById('staffLogoutBtn').addEventListener('click', handleLogout);
+    document.getElementById('equipLogoutBtn').addEventListener('click', handleLogout);
+
+    // ========== إرسال نموذج تحضير الموظفين ==========
+    document.getElementById('staffForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       hideStatus();
 
@@ -1003,7 +1504,7 @@
       let licenseCode = '';
 
       if (locationType === 'موقع العمل') {
-        projectCode = projectSelect.value.trim();
+        projectCode = document.getElementById('staffProjectSelect').value.trim();
         if (!projectCode) {
           showStatus('error', 'يرجى اختيار المشروع (ProjectCode).');
           return;
@@ -1011,7 +1512,7 @@
         const proj = projectsListData.find((p) => p.projectCode === projectCode);
         const licenses = (proj && Array.isArray(proj.licenses)) ? proj.licenses : [];
         if (licenses.length > 0) {
-          licenseCode = licenseSelect.value.trim();
+          licenseCode = document.getElementById('staffLicenseSelect').value.trim();
           if (!licenseCode) {
             showStatus('error', 'يرجى اختيار الرخصة التابعة للمشروع (LicenseCode).');
             return;
@@ -1019,19 +1520,20 @@
         }
       }
 
-      const selectedStaff = Array.from(selectedMap.values());
+      const selectedStaff = Array.from(staffSelectedMap.values());
       if (selectedStaff.length === 0) {
         showStatus('error', 'يرجى اختيار موظف واحد على الأقل.');
         return;
       }
 
-      if (!capturedBase64Image) {
+      if (!staffCapturedImage) {
         showStatus('error', 'يرجى التقاط صورة بالكاميرا أو إرفاق صورة أولاً.');
         return;
       }
 
+      const submitBtn = document.getElementById('staffSubmitBtn');
       submitBtn.disabled = true;
-      showStatus('loading', 'جاري التحقق من إحداثيات الموقع وحفظ البيانات...');
+      showStatus('loading', 'جاري التحقق من إحداثيات الموقع وحفظ تحضير الموظفين...');
 
       const locOk = await verifyLocation();
       if (!locOk || currentCoords.latitude === null || currentCoords.longitude === null) {
@@ -1041,6 +1543,7 @@
       }
 
       const payload = {
+        recordType: 'staff',
         username: sessionAuth.username,
         password: sessionAuth.password,
         timestamp: new Date().toISOString(),
@@ -1048,13 +1551,13 @@
         projectCode: projectCode,
         licenseCode: licenseCode,
         selectedStaff: selectedStaff,
-        notes: notesInput.value.trim(),
+        notes: document.getElementById('staffNotesInput').value.trim(),
         latitude: currentCoords.latitude,
         longitude: currentCoords.longitude,
         accuracy: currentCoords.accuracy,
-        imageBase64: capturedBase64Image.base64,
-        imageMimeType: capturedBase64Image.mimeType,
-        imageName: capturedBase64Image.fileName
+        imageBase64: staffCapturedImage.base64,
+        imageMimeType: staffCapturedImage.mimeType,
+        imageName: staffCapturedImage.fileName
       };
 
       try {
@@ -1066,23 +1569,144 @@
         const result = await response.json();
 
         if (result && result.success) {
-          showStatus('success', result.message || 'تم حفظ البيانات والصورة بنجاح.');
+          showStatus('success', result.message || 'تم حفظ بيانات الموظفين بنجاح.');
           stopLiveCamera();
-          reportForm.reset();
-          notesInput.value = '';
-          searchInput.value = '';
-          selectedMap.clear();
-          capturedBase64Image = null;
-          previewImg.style.display = 'none';
-          handleLocationTypeChange();
+          document.getElementById('staffForm').reset();
+          staffSearchInput.value = '';
+          staffSelectedMap.clear();
+          staffCapturedImage = null;
+          document.getElementById('staffPreviewImg').style.display = 'none';
+          handleStaffLocationTypeChange();
           updateStaffDropdown();
-          renderSelectedSummary();
+          renderStaffSelectedChips();
           verifyLocation();
         } else if (result && result.unauthorized) {
           showStatus('error', result.message);
-          logoutBtn.click();
+          handleLogout();
         } else {
           showStatus('error', (result && result.message) || 'فشل حفظ البيانات.');
+        }
+      } catch (err) {
+        console.error(err);
+        showStatus('error', 'حدث خطأ أثناء الاتصال بالخادم.');
+      } finally {
+        submitBtn.disabled = false;
+      }
+    });
+
+    // ========== إرسال نموذج تحضير المعدات في موقع العمل ==========
+    document.getElementById('equipForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      hideStatus();
+
+      const actionRadio = document.querySelector('input[name="equipActionType"]:checked');
+      if (!actionRadio) {
+        showStatus('error', 'يرجى اختيار الإجراء (حضور أو انصراف من موقع العمل).');
+        return;
+      }
+      const actionType = actionRadio.value; // 'حضور' أو 'انصراف'
+
+      const timeModeRadio = document.querySelector('input[name="equipTimeMode"]:checked');
+      const timeMode = timeModeRadio ? timeModeRadio.value : 'auto';
+      let manualDate = '';
+      let manualTime = '';
+
+      if (timeMode === 'manual') {
+        manualDate = equipManualDate.value.trim();
+        manualTime = equipManualTime.value.trim();
+        if (!manualDate || !manualTime) {
+          showStatus('error', 'يرجى إدخال التاريخ والوقت يدوياً.');
+          return;
+        }
+        if (manualTime.length === 5) manualTime += ':00';
+      }
+
+      const projectCode = document.getElementById('equipProjectSelect').value.trim();
+      if (!projectCode) {
+        showStatus('error', 'يرجى اختيار المشروع (ProjectCode).');
+        return;
+      }
+
+      const proj = projectsListData.find((p) => p.projectCode === projectCode);
+      const licenses = (proj && Array.isArray(proj.licenses)) ? proj.licenses : [];
+      let licenseCode = '';
+      if (licenses.length > 0) {
+        licenseCode = document.getElementById('equipLicenseSelect').value.trim();
+        if (!licenseCode) {
+          showStatus('error', 'يرجى اختيار الرخصة التابعة للمشروع (LicenseCode).');
+          return;
+        }
+      }
+
+      const selectedEquipment = Array.from(equipSelectedMap.values());
+      if (selectedEquipment.length === 0) {
+        showStatus('error', 'يرجى اختيار معدة واحدة على الأقل.');
+        return;
+      }
+
+      if (!equipCapturedImage) {
+        showStatus('error', 'يرجى التقاط صورة للمعدة بالكاميرا أو إرفاق صورة أولاً.');
+        return;
+      }
+
+      const submitBtn = document.getElementById('equipSubmitBtn');
+      submitBtn.disabled = true;
+      showStatus('loading', 'جاري التحقق من إحداثيات موقع العمل وحفظ سجل المعدات...');
+
+      const locOk = await verifyLocation();
+      if (!locOk || currentCoords.latitude === null || currentCoords.longitude === null) {
+        submitBtn.disabled = false;
+        showStatus('error', 'لم يتم تأكيد إحداثيات موقع العمل. فعّل GPS وامنح الإذن ثم أعد المحاولة.');
+        return;
+      }
+
+      const payload = {
+        recordType: 'equipment',
+        username: sessionAuth.username,
+        password: sessionAuth.password,
+        timestamp: new Date().toISOString(),
+        actionType: actionType,
+        timeMode: timeMode,
+        manualDate: manualDate,
+        manualTime: manualTime,
+        projectCode: projectCode,
+        licenseCode: licenseCode,
+        selectedEquipment: selectedEquipment,
+        notes: document.getElementById('equipNotesInput').value.trim(),
+        latitude: currentCoords.latitude,
+        longitude: currentCoords.longitude,
+        accuracy: currentCoords.accuracy,
+        imageBase64: equipCapturedImage.base64,
+        imageMimeType: equipCapturedImage.mimeType,
+        imageName: equipCapturedImage.fileName
+      };
+
+      try {
+        const response = await fetch(WEB_APP_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify(payload)
+        });
+        const result = await response.json();
+
+        if (result && result.success) {
+          showStatus('success', result.message || 'تم حفظ سجل المعدات بنجاح.');
+          stopLiveCamera();
+          document.getElementById('equipForm').reset();
+          equipSearchInput.value = '';
+          equipSelectedMap.clear();
+          equipCapturedImage = null;
+          document.getElementById('equipPreviewImg').style.display = 'none';
+          equipProjCtrl.reset();
+          handleEquipTimeModeChange();
+          updateEquipDropdown();
+          renderEquipSelectedChips();
+          verifyLocation();
+        } else if (result && result.unauthorized) {
+          showStatus('error', result.message);
+          handleLogout();
+        } else {
+          showStatus('error', (result && result.message) || 'فشل حفظ سجل المعدات.');
         }
       } catch (err) {
         console.error(err);
